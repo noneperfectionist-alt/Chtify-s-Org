@@ -177,6 +177,8 @@ export const Chats: React.FC = () => {
         status: "pending",
         createdAt: serverTimestamp()
       });
+      const fromName = localStorage.getItem("username") || "Someone";
+      socketService.getSocket().emit("friend-request", { fromId: userId, toId: toUid, fromName });
       alert("Friend request sent!");
     } catch (error) {
       console.error("Error sending request:", error);
@@ -205,7 +207,8 @@ export const Chats: React.FC = () => {
 
     try {
       await addDoc(collection(db, "messages"), msgData);
-      socketService.sendChatMessage(chatId, message);
+      const senderName = localStorage.getItem("username") || "Someone";
+      socketService.sendChatMessage(chatId, message, selectedFriend.uid, senderName);
       setMessage("");
     } catch (error) {
       console.error("Error sending message:", error);

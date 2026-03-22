@@ -10,6 +10,7 @@ const navItems = [
   { icon: Layers, label: "Stories", path: "/stories" },
   { icon: MapPin, label: "Location", path: "/location" },
   { icon: Calendar, label: "Memories", path: "/memories" },
+  { icon: Bell, label: "Notifications", path: "/settings/notifications" },
   { icon: User, label: "Profile", path: "/profile" },
 ];
 

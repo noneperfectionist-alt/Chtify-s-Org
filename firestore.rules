@@ -46,5 +46,13 @@ service cloud.firestore {
     match /admin_config/{document} {
       allow read, write: if true; // Restricted by application logic (password/OTP)
     }
+    
+    match /logs/{logId} {
+      allow read, write: if true; // Admin access
+    }
+    
+    match /reports/{reportId} {
+      allow read, write: if true; // Admin access
+    }
   }
 }

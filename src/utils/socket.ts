@@ -47,11 +47,13 @@ class SocketService {
     this.socket?.emit("join-chat", chatId);
   }
 
-  sendChatMessage(chatId: string, text: string) {
+  sendChatMessage(chatId: string, text: string, receiverId: string, senderName: string) {
     const userId = localStorage.getItem("userId");
     this.socket?.emit("send-chat-message", {
       chatId,
       senderId: userId,
+      receiverId,
+      senderName,
       text,
       timestamp: new Date().toISOString(),
     });

@@ -5,8 +5,26 @@ import path from "path";
 import { createServer as createViteServer } from "vite";
 import nodemailer from "nodemailer";
 import dotenv from "dotenv";
+import admin from "firebase-admin";
 
 dotenv.config();
+
+// Initialize Firebase Admin
+if (process.env.FIREBASE_SERVICE_ACCOUNT) {
+  try {
+    const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
+    admin.initializeApp({
+      credential: admin.credential.cert(serviceAccount),
+    });
+    console.log("Firebase Admin initialized successfully.");
+  } catch (error) {
+    console.error("Error initializing Firebase Admin:", error);
+  }
+} else {
+  console.warn("FIREBASE_SERVICE_ACCOUNT not found. Push notifications will be disabled.");
+}
+
+const db = admin.apps.length ? admin.firestore() : null;
 
 async function startServer() {
   const app = express();
@@ -18,6 +36,58 @@ async function startServer() {
   });
 
   const PORT = 3000;
+
+  // Helper to send push notification
+  const sendPushNotification = async (userId: string, title: string, body: string, data: any = {}) => {
+    if (!db) return;
+
+    try {
+      const userDoc = await db.collection("users").doc(userId).get();
+      if (!userDoc.exists) return;
+
+      const userData = userDoc.data();
+      const tokens = userData?.fcmTokens || [];
+      const settings = userData?.notificationSettings || { showPreview: true, soundEnabled: true, vibrationEnabled: true };
+
+      if (tokens.length === 0) return;
+
+      // Privacy mode: mask body if preview is disabled
+      const finalBody = settings.showPreview ? body : "New message received";
+
+      const message = {
+        notification: {
+          title,
+          body: finalBody,
+        },
+        data: {
+          ...data,
+          click_action: "FLUTTER_NOTIFICATION_CLICK", // For mobile
+        },
+        tokens,
+      };
+
+      const response = await admin.messaging().sendEachForMulticast(message);
+      console.log(`Successfully sent ${response.successCount} notifications to user ${userId}`);
+      
+      // Cleanup invalid tokens
+      if (response.failureCount > 0) {
+        const failedTokens: string[] = [];
+        response.responses.forEach((resp, idx) => {
+          if (!resp.success) {
+            failedTokens.push(tokens[idx]);
+          }
+        });
+        
+        if (failedTokens.length > 0) {
+          await db.collection("users").doc(userId).update({
+            fcmTokens: admin.firestore.FieldValue.arrayRemove(...failedTokens)
+          });
+        }
+      }
+    } catch (error) {
+      console.error("Error sending push notification:", error);
+    }
+  };
 
   // Email Transporter
   const transporter = nodemailer.createTransport({
@@ -34,6 +104,38 @@ async function startServer() {
   // API Routes
   app.get("/api/health", (req, res) => {
     res.json({ status: "ok" });
+  });
+
+  // Admin Push API
+  app.post("/api/admin/send-push", async (req, res) => {
+    const { target, title, body, data } = req.body;
+    // In a real app, verify admin auth here
+    
+    try {
+      if (target === "all") {
+        const usersSnapshot = await db?.collection("users").get();
+        const allTokens: string[] = [];
+        usersSnapshot?.forEach(doc => {
+          const tokens = doc.data().fcmTokens || [];
+          allTokens.push(...tokens);
+        });
+
+        if (allTokens.length > 0) {
+          const message = {
+            notification: { title, body },
+            data: data || {},
+            tokens: allTokens,
+          };
+          await admin.messaging().sendEachForMulticast(message);
+        }
+      } else {
+        await sendPushNotification(target, title, body, data);
+      }
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Admin push error:", error);
+      res.status(500).json({ error: "Failed to send notifications" });
+    }
   });
 
   app.post("/api/send-welcome", async (req, res) => {
@@ -95,13 +197,14 @@ async function startServer() {
   });
 
   // Socket.io logic
-  const users = new Map<string, string>(); // socketId -> userId
+  const connectedUsers = new Map<string, string>(); // socketId -> userId
+  const activeChats = new Map<string, string>(); // socketId -> chatId
 
   io.on("connection", (socket) => {
     console.log("A user connected:", socket.id);
 
     socket.on("register-user", (userId) => {
-      users.set(socket.id, userId);
+      connectedUsers.set(socket.id, userId);
       io.emit("user-status-change", { userId, status: "online" });
       console.log(`User ${userId} registered with socket ${socket.id}`);
     });
@@ -109,12 +212,46 @@ async function startServer() {
     // Chat
     socket.on("join-chat", (chatId) => {
       socket.join(`chat:${chatId}`);
+      activeChats.set(socket.id, chatId);
       console.log(`User ${socket.id} joined chat ${chatId}`);
     });
 
-    socket.on("send-chat-message", (data) => {
-      // data: { chatId, senderId, text, timestamp }
+    socket.on("leave-chat", () => {
+      activeChats.delete(socket.id);
+    });
+
+    socket.on("send-chat-message", async (data) => {
+      // data: { chatId, senderId, receiverId, text, senderName, timestamp }
       io.to(`chat:${data.chatId}`).emit("new-chat-message", data);
+
+      // Smart Notification Logic
+      const receiverSocketId = Array.from(connectedUsers.entries()).find(([sid, uid]) => uid === data.receiverId)?.[0];
+      const isReceiverInChat = receiverSocketId && activeChats.get(receiverSocketId) === data.chatId;
+
+      if (!isReceiverInChat) {
+        // Send push notification
+        await sendPushNotification(
+          data.receiverId,
+          data.senderName || "New Message",
+          data.text,
+          { chatId: data.chatId, type: "message" }
+        );
+      }
+    });
+
+    socket.on("friend-request", async (data) => {
+      // data: { fromId, toId, fromName }
+      const targetSocketId = Array.from(connectedUsers.entries()).find(([_, id]) => id === data.toId)?.[0];
+      if (targetSocketId) {
+        io.to(targetSocketId).emit("new-friend-request", data);
+      }
+      
+      await sendPushNotification(
+        data.toId,
+        "New Friend Request",
+        `${data.fromName} sent you a friend request`,
+        { type: "friend_request", fromId: data.fromId }
+      );
     });
 
     socket.on("typing-start", (data) => {
@@ -132,37 +269,58 @@ async function startServer() {
     });
 
     socket.on("cinema-control", (data) => {
-      // data: { roomId, action: 'play' | 'pause' | 'seek', time, userId }
       socket.to(`cinema:${data.roomId}`).emit("cinema-sync", data);
     });
 
     // WebRTC Signaling (Calls)
-    socket.on("call-user", (data) => {
+    socket.on("call-user", async (data) => {
       // data: { userToCall, signalData, from, name }
-      const targetSocketId = Array.from(users.entries()).find(([_, id]) => id === data.userToCall)?.[0];
+      const targetSocketId = Array.from(connectedUsers.entries()).find(([_, id]) => id === data.userToCall)?.[0];
       if (targetSocketId) {
         io.to(targetSocketId).emit("incoming-call", { signal: data.signalData, from: data.from, name: data.name });
       }
+
+      await sendPushNotification(
+        data.userToCall,
+        "Incoming Call",
+        `${data.name} is calling you...`,
+        { type: "call", from: data.from, signal: JSON.stringify(data.signalData) }
+      );
     });
 
     socket.on("answer-call", (data) => {
-      // data: { signal, to }
-      const targetSocketId = Array.from(users.entries()).find(([_, id]) => id === data.to)?.[0];
+      const targetSocketId = Array.from(connectedUsers.entries()).find(([_, id]) => id === data.to)?.[0];
       if (targetSocketId) {
         io.to(targetSocketId).emit("call-accepted", data.signal);
       }
     });
 
+    // Screenshot Detection
+    socket.on("screenshot-detected", async (data) => {
+      // data: { chatId, userId, username, targetId }
+      const targetSocketId = Array.from(connectedUsers.entries()).find(([_, id]) => id === data.targetId)?.[0];
+      if (targetSocketId) {
+        io.to(targetSocketId).emit("screenshot-alert", data);
+      }
+
+      await sendPushNotification(
+        data.targetId,
+        "⚠ Screenshot Taken",
+        `${data.username} took a screenshot of your chat`,
+        { type: "screenshot", chatId: data.chatId }
+      );
+    });
+
     // Location Sharing
     socket.on("update-location", (data) => {
-      // data: { userId, latitude, longitude, timestamp }
       socket.broadcast.emit("friend-location-update", data);
     });
 
     socket.on("disconnect", () => {
-      const userId = users.get(socket.id);
+      const userId = connectedUsers.get(socket.id);
       if (userId) {
-        users.delete(socket.id);
+        connectedUsers.delete(socket.id);
+        activeChats.delete(socket.id);
         io.emit("user-status-change", { userId, status: "offline" });
       }
       console.log("User disconnected:", socket.id);
