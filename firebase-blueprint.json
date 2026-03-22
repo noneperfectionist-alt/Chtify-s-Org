@@ -1,0 +1,72 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "Represents a user in the Chatify platform.",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string", "description": "Firebase Auth UID" },
+        "username": { "type": "string", "description": "Globally unique username" },
+        "email": { "type": "string", "format": "email", "description": "User's email" },
+        "userType": { "type": "string", "enum": ["normal", "special_atithi", "admin"], "description": "Type of user" },
+        "isApproved": { "type": "boolean", "description": "Approval status for special atithi" },
+        "emailVerified": { "type": "boolean", "description": "Whether email is verified" },
+        "profilePhoto": { "type": "string", "description": "URL to profile photo" },
+        "status": { "type": "string", "enum": ["available", "not_available"], "description": "User availability status" },
+        "publicKey": { "type": "string", "description": "Public encryption key" },
+        "otp": { "type": "string", "description": "Verification OTP" },
+        "otpCreatedAt": { "type": "string", "format": "date-time", "description": "OTP creation timestamp" },
+        "createdAt": { "type": "string", "format": "date-time", "description": "Account creation timestamp" }
+      },
+      "required": ["uid", "username", "email", "userType"]
+    },
+    "FriendRequest": {
+      "title": "FriendRequest",
+      "description": "Represents a friend request between users.",
+      "type": "object",
+      "properties": {
+        "fromUid": { "type": "string" },
+        "toUid": { "type": "string" },
+        "status": { "type": "string", "enum": ["pending", "accepted", "rejected"] },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["fromUid", "toUid", "status"]
+    },
+    "Message": {
+      "title": "Message",
+      "description": "Represents a chat message.",
+      "type": "object",
+      "properties": {
+        "senderUid": { "type": "string" },
+        "receiverUid": { "type": "string" },
+        "content": { "type": "string", "description": "Encrypted message content" },
+        "type": { "type": "string", "enum": ["text", "voice", "image", "video", "location"] },
+        "status": { "type": "string", "enum": ["sent", "delivered", "seen"] },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["senderUid", "receiverUid", "content", "type"]
+    }
+  },
+  "firestore": {
+    "/users/{uid}": {
+      "schema": "User",
+      "description": "User profiles"
+    },
+    "/friendRequests/{requestId}": {
+      "schema": "FriendRequest",
+      "description": "Friend requests"
+    },
+    "/messages/{messageId}": {
+      "schema": "Message",
+      "description": "Chat messages"
+    },
+    "/cinema_chats/{chatId}": {
+      "schema": "object",
+      "description": "Cinema room chat messages"
+    },
+    "/admin_config/settings": {
+      "schema": "object",
+      "description": "Admin panel configuration and security"
+    }
+  }
+}

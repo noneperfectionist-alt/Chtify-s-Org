@@ -1,0 +1,5 @@
+{
+  "name": "Chatify",
+  "description": "A next-generation, privacy-first, real-time communication platform with glassmorphism UI, end-to-end encryption, and advanced social features.",
+  "requestFramePermissions": ["camera", "microphone", "geolocation"]
+}
