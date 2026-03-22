@@ -1,10 +1,12 @@
 import React, { useState, useRef, useEffect } from "react";
 import { GlassCard, Button, Input } from "../components/UI";
-import { Play, Pause, SkipForward, Volume2, Maximize, Youtube, Link as LinkIcon, FileVideo, Users, MessageSquare, Video, X, Send } from "lucide-react";
+import { Play, Pause, SkipForward, Volume2, Maximize, Youtube, Link as LinkIcon, FileVideo, Users, MessageSquare, Video, X, Send, Trash2, Upload } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { socketService } from "../utils/socket";
-import { auth, db } from "../firebase";
-import { collection, query, where, onSnapshot, getDoc, doc, addDoc, serverTimestamp, orderBy } from "firebase/firestore";
+import { auth, db, storage } from "../firebase";
+import { collection, query, where, onSnapshot, getDoc, doc, addDoc, serverTimestamp, orderBy, updateDoc } from "firebase/firestore";
+import { ref, uploadBytesResumable, getDownloadURL, deleteObject } from "firebase/storage";
+import ReactPlayer from "react-player";
 import { cn } from "../components/UI";
 
 interface UserProfile {
@@ -24,7 +26,7 @@ interface CinemaMessage {
 }
 
 export const WatchCinema: React.FC = () => {
-  const [videoSource, setVideoSource] = useState<"youtube" | "url" | "local" | null>(null);
+  const [videoSource, setVideoSource] = useState<"youtube" | "url" | "upload" | null>(null);
   const [url, setUrl] = useState("");
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
@@ -37,8 +39,10 @@ export const WatchCinema: React.FC = () => {
   const [selectedFriend, setSelectedFriend] = useState<UserProfile | null>(null);
   const [cinemaMessages, setCinemaMessages] = useState<CinemaMessage[]>([]);
   const [newMessage, setNewMessage] = useState("");
+  const [uploadProgress, setUploadProgress] = useState<number | null>(null);
+  const [uploadedFilePath, setUploadedFilePath] = useState<string | null>(null);
   
-  const videoRef = useRef<HTMLVideoElement>(null);
+  const playerRef = useRef<any>(null);
   const isRemoteAction = useRef(false);
   const userId = auth.currentUser?.uid;
   const username = auth.currentUser?.displayName || "User";
@@ -49,7 +53,6 @@ export const WatchCinema: React.FC = () => {
     const socket = socketService.getSocket();
     socket.emit("register-user", userId);
     
-    // Fetch accepted friends
     const qAccepted = query(
       collection(db, "friendRequests"),
       where("status", "==", "accepted"),
@@ -100,22 +103,20 @@ export const WatchCinema: React.FC = () => {
         if (data.userId === userId) return;
         
         isRemoteAction.current = true;
-        if (videoRef.current) {
-          if (data.action === 'play') {
-            videoRef.current.play();
-            setIsPlaying(true);
-          } else if (data.action === 'pause') {
-            videoRef.current.pause();
-            setIsPlaying(false);
-          } else if (data.action === 'seek') {
-            videoRef.current.currentTime = data.time;
-            setCurrentTime(data.time);
-          }
+        if (data.action === 'play') {
+          setIsPlaying(true);
+        } else if (data.action === 'pause') {
+          setIsPlaying(false);
+        } else if (data.action === 'seek') {
+          playerRef.current?.seekTo(data.time, 'seconds');
+          setCurrentTime(data.time);
+        } else if (data.action === 'source') {
+          setVideoSource(data.sourceType);
+          setUrl(data.url);
         }
         setTimeout(() => { isRemoteAction.current = false; }, 100);
       });
 
-      // Cinema Chat
       const q = query(
         collection(db, "cinema_chats"),
         where("roomId", "==", roomId),
@@ -140,38 +141,78 @@ export const WatchCinema: React.FC = () => {
   };
 
   const handlePlayPause = () => {
-    if (videoRef.current) {
-      const newIsPlaying = !isPlaying;
-      if (newIsPlaying) videoRef.current.play();
-      else videoRef.current.pause();
-      
-      setIsPlaying(newIsPlaying);
+    const newIsPlaying = !isPlaying;
+    setIsPlaying(newIsPlaying);
 
-      if (!isRemoteAction.current) {
-        socketService.sendCinemaControl(roomId, newIsPlaying ? 'play' : 'pause', videoRef.current.currentTime);
-      }
+    if (!isRemoteAction.current) {
+      socketService.sendCinemaControl(roomId, newIsPlaying ? 'play' : 'pause', playerRef.current?.getCurrentTime() || 0);
     }
   };
 
   const handleSeek = (e: React.ChangeEvent<HTMLInputElement>) => {
     const time = parseFloat(e.target.value);
-    if (videoRef.current) {
-      videoRef.current.currentTime = time;
-      setCurrentTime(time);
+    playerRef.current?.seekTo(time, 'seconds');
+    setCurrentTime(time);
 
-      if (!isRemoteAction.current) {
-        socketService.sendCinemaControl(roomId, 'seek', time);
+    if (!isRemoteAction.current) {
+      socketService.sendCinemaControl(roomId, 'seek', time);
+    }
+  };
+
+  const handleProgress = (state: { playedSeconds: number }) => {
+    setCurrentTime(state.playedSeconds);
+  };
+
+  const handleDuration = (dur: number) => {
+    setDuration(dur);
+  };
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !roomId) return;
+
+    const storageRef = ref(storage, `cinema/${roomId}/${Date.now()}_${file.name}`);
+    const uploadTask = uploadBytesResumable(storageRef, file);
+
+    uploadTask.on('state_changed', 
+      (snapshot) => {
+        const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+        setUploadProgress(progress);
+      }, 
+      (error) => {
+        console.error("Upload error:", error);
+        setUploadProgress(null);
+      }, 
+      async () => {
+        const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
+        setUploadedFilePath(uploadTask.snapshot.ref.fullPath);
+        setUrl(downloadURL);
+        setVideoSource("upload");
+        setUploadProgress(null);
+        socketService.sendCinemaControl(roomId, 'source', 0, "upload", downloadURL);
+      }
+    );
+  };
+
+  const removeUploadedVideo = async () => {
+    if (uploadedFilePath) {
+      try {
+        const fileRef = ref(storage, uploadedFilePath);
+        await deleteObject(fileRef);
+        setUploadedFilePath(null);
+        setUrl("");
+        setVideoSource(null);
+        socketService.sendCinemaControl(roomId, 'source', 0, null, "");
+      } catch (error) {
+        console.error("Error deleting video:", error);
       }
     }
   };
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      const url = URL.createObjectURL(file);
-      setUrl(url);
-      setVideoSource("local");
-    }
+  const startWithUrl = () => {
+    if (!url.trim()) return;
+    setVideoSource(url.includes("youtube.com") || url.includes("youtu.be") ? "youtube" : "url");
+    socketService.sendCinemaControl(roomId, 'source', 0, url.includes("youtube.com") || url.includes("youtu.be") ? "youtube" : "url", url);
   };
 
   const handleSendMessage = async (e: React.FormEvent) => {
@@ -231,7 +272,7 @@ export const WatchCinema: React.FC = () => {
     );
   }
 
-  if (!videoSource) {
+  if (!videoSource && !uploadProgress) {
     return (
       <div className="p-6 max-w-4xl mx-auto space-y-8 pt-24 md:pt-8">
         <div className="flex items-center gap-4">
@@ -271,29 +312,45 @@ export const WatchCinema: React.FC = () => {
               type="file"
               accept="video/*"
               className="absolute inset-0 opacity-0 cursor-pointer"
-              onChange={handleFileChange}
+              onChange={handleFileUpload}
             />
             <div className="w-16 h-16 bg-emerald-600/20 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform">
-              <FileVideo size={32} className="text-emerald-500" />
+              <Upload size={32} className="text-emerald-500" />
             </div>
-            <h3 className="text-lg font-semibold text-foreground">Local File</h3>
-            <p className="text-xs text-muted-foreground text-center">Upload from your device.</p>
+            <h3 className="text-lg font-semibold text-foreground">Upload Video</h3>
+            <p className="text-xs text-muted-foreground text-center">Upload and sync with friend.</p>
           </GlassCard>
         </div>
 
-        {(videoSource === "youtube" || videoSource === "url") && (
-          <GlassCard className="max-w-xl mx-auto space-y-4">
-            <Input
-              label={videoSource === "youtube" ? "YouTube URL" : "Video URL"}
-              placeholder="https://..."
-              value={url}
-              onChange={(e) => setUrl(e.target.value)}
-            />
-            <Button className="w-full" onClick={() => setVideoSource(videoSource)}>
-              Start Watching
-            </Button>
-          </GlassCard>
-        )}
+        <GlassCard className="max-w-xl mx-auto space-y-4">
+          <Input
+            label="Video or YouTube URL"
+            placeholder="https://..."
+            value={url}
+            onChange={(e) => setUrl(e.target.value)}
+          />
+          <Button className="w-full" onClick={startWithUrl}>
+            Start Watching
+          </Button>
+        </GlassCard>
+      </div>
+    );
+  }
+
+  const Player = ReactPlayer as any;
+
+  if (uploadProgress !== null) {
+    return (
+      <div className="flex flex-col items-center justify-center h-screen bg-black text-white p-6">
+        <Upload size={48} className="text-primary animate-bounce mb-4" />
+        <h2 className="text-2xl font-bold mb-2">Uploading Video...</h2>
+        <div className="w-full max-w-md bg-zinc-800 h-2 rounded-full overflow-hidden">
+          <div 
+            className="bg-primary h-full transition-all duration-300" 
+            style={{ width: `${uploadProgress}%` }}
+          />
+        </div>
+        <p className="mt-2 text-zinc-400">{Math.round(uploadProgress)}%</p>
       </div>
     );
   }
@@ -304,30 +361,27 @@ export const WatchCinema: React.FC = () => {
         {/* Main Video Area */}
         <div className="flex-1 flex flex-col bg-zinc-950 relative">
           <div className="flex-1 relative group">
-            {videoSource === "youtube" ? (
-              <iframe
-                className="w-full h-full"
-                src={`https://www.youtube.com/embed/${url.split("v=")[1] || url.split("/").pop()}?autoplay=1&controls=0`}
-                allow="autoplay; encrypted-media"
-                allowFullScreen
-              />
-            ) : (
-              <video
-                ref={videoRef}
-                className="w-full h-full object-contain"
-                src={url}
-                onTimeUpdate={() => setCurrentTime(videoRef.current?.currentTime || 0)}
-                onLoadedMetadata={() => setDuration(videoRef.current?.duration || 0)}
-              />
-            )}
+            <Player
+              ref={playerRef}
+              url={url}
+              width="100%"
+              height="100%"
+              playing={isPlaying}
+              onProgress={(state: any) => handleProgress(state)}
+              onDuration={handleDuration}
+              playbackRate={playbackSpeed}
+              controls={false}
+              style={{ position: 'absolute', top: 0, left: 0 }}
+            />
 
             {/* Video Controls Overlay */}
-            <div className="absolute inset-x-0 bottom-0 p-4 md:p-6 bg-gradient-to-t from-black/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
+            <div className="absolute inset-x-0 bottom-0 p-4 md:p-6 bg-gradient-to-t from-black/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity z-10">
               <div className="space-y-4">
                 <input
                   type="range"
                   min={0}
                   max={duration}
+                  step="any"
                   value={currentTime}
                   onChange={handleSeek}
                   className="w-full h-1 bg-zinc-800 rounded-full appearance-none cursor-pointer accent-primary"
@@ -350,6 +404,16 @@ export const WatchCinema: React.FC = () => {
                     </span>
                   </div>
                   <div className="flex items-center gap-4">
+                    {uploadedFilePath && (
+                      <button 
+                        onClick={removeUploadedVideo}
+                        className="text-rose-500 hover:text-rose-400 transition-colors flex items-center gap-1 text-xs"
+                        title="Remove uploaded video"
+                      >
+                        <Trash2 size={16} />
+                        <span className="hidden sm:inline">Remove</span>
+                      </button>
+                    )}
                     <select
                       className="bg-transparent text-[10px] md:text-xs text-zinc-400 focus:outline-none"
                       value={playbackSpeed}
@@ -370,7 +434,7 @@ export const WatchCinema: React.FC = () => {
 
             {/* Friend's Camera Feed */}
             {isVideoCallOpen && (
-              <div className="absolute top-4 right-4 w-32 md:w-48 aspect-video bg-zinc-900 rounded-xl border border-white/10 shadow-2xl overflow-hidden">
+              <div className="absolute top-4 right-4 w-32 md:w-48 aspect-video bg-zinc-900 rounded-xl border border-white/10 shadow-2xl overflow-hidden z-10">
                 <div className="w-full h-full flex items-center justify-center bg-zinc-800">
                   <Users size={24} className="text-zinc-600" />
                 </div>

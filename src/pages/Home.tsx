@@ -155,10 +155,19 @@ const Home: React.FC = () => {
             </ul>
           </div>
           <div>
+            <h4 className="text-white font-black uppercase tracking-widest text-xs mb-6">Quick FAQ</h4>
+            <ul className="space-y-4 text-zinc-500 text-[10px] font-bold uppercase tracking-widest">
+              <li><span className="text-zinc-400">Is it secure?</span> Yes, E2E encrypted.</li>
+              <li><span className="text-zinc-400">Is it free?</span> Yes, core features are free.</li>
+              <li><span className="text-zinc-400">Can I delete?</span> Yes, anytime in settings.</li>
+              <li><Link to="/help" className="text-indigo-400 hover:text-indigo-300 transition-colors">View All FAQ</Link></li>
+            </ul>
+          </div>
+          <div>
             <h4 className="text-white font-black uppercase tracking-widest text-xs mb-6">Support</h4>
             <ul className="space-y-4 text-zinc-500 text-xs font-bold uppercase tracking-widest">
               <li><Link to="/contact" className="hover:text-white transition-colors">Contact</Link></li>
-              <li><Link to="/faq" className="hover:text-white transition-colors">FAQ</Link></li>
+              <li><Link to="/help" className="hover:text-white transition-colors">Help Center</Link></li>
               <li><Link to="/blog" className="hover:text-white transition-colors">Blog</Link></li>
             </ul>
           </div>

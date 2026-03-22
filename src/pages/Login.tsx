@@ -5,7 +5,7 @@ import { LogIn, Loader2, Eye, EyeOff, ShieldCheck } from "lucide-react";
 import { motion } from "motion/react";
 import { auth, db } from "../firebase";
 import { signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider } from "firebase/auth";
-import { doc, getDoc } from "firebase/firestore";
+import { doc, getDoc, setDoc } from "firebase/firestore";
 
 export const Login: React.FC = () => {
   const [email, setEmail] = useState("");
@@ -44,25 +44,40 @@ export const Login: React.FC = () => {
   const handleGoogleLogin = async () => {
     const provider = new GoogleAuthProvider();
     setError(null);
+    setIsLoading(true);
     try {
       const result = await signInWithPopup(auth, provider);
       const user = result.user;
       
-      // Check if user exists in Firestore, if not redirect to signup or create profile
-      const userDoc = await getDoc(doc(db, "users", user.uid));
+      const userDocRef = doc(db, "users", user.uid);
+      const userDoc = await getDoc(userDocRef);
+      
+      let username = "";
+
       if (userDoc.exists()) {
-        const userData = userDoc.data();
-        localStorage.setItem("isLoggedIn", "true");
-        localStorage.setItem("userId", user.uid);
-        localStorage.setItem("username", userData.username);
-        window.location.href = "/chats";
+        username = userDoc.data().username;
       } else {
-        setError("Please sign up first to create a username.");
-        auth.signOut();
+        // Create a new profile for Google users if it doesn't exist
+        username = user.displayName?.split(" ")[0].toLowerCase() + Math.floor(Math.random() * 1000);
+        await setDoc(userDocRef, {
+          uid: user.uid,
+          username: username,
+          email: user.email,
+          status: "available",
+          profilePhoto: user.photoURL,
+          createdAt: new Date().toISOString()
+        });
       }
+
+      localStorage.setItem("isLoggedIn", "true");
+      localStorage.setItem("userId", user.uid);
+      localStorage.setItem("username", username);
+      window.location.href = "/chats";
     } catch (error: any) {
       console.error("Google login error:", error);
       setError(error.message);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -111,6 +126,15 @@ export const Login: React.FC = () => {
               >
                 {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
               </button>
+            </div>
+            
+            <div className="flex justify-end">
+              <Link 
+                to="/forgot-password" 
+                className="text-xs text-primary hover:text-primary/80 font-medium transition-colors"
+              >
+                Forgot Password?
+              </Link>
             </div>
             
             {error && (

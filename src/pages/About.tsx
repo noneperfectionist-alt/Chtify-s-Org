@@ -40,9 +40,17 @@ export const About: React.FC = () => {
               <p className="text-zinc-400 text-lg font-medium mb-8 leading-relaxed">
                 At Chatify, we believe that privacy is a fundamental human right. Our mission is to provide a secure, transparent, and engaging platform where people can communicate freely without fear of surveillance or data exploitation.
               </p>
-              <p className="text-zinc-400 text-lg font-medium leading-relaxed">
-                Founded in 2024, we've grown from a small team of security enthusiasts to a global community dedicated to reclaiming the digital space for genuine human connection.
+              <p className="text-zinc-400 text-lg font-medium mb-8 leading-relaxed">
+                Founded in 2024, Chatify was born out of a desire to create a communication tool that puts users first. We don't sell your data, we don't track your every move, and we certainly don't compromise on security. Our end-to-end encryption ensures that your conversations stay between you and your intended recipients.
               </p>
+              <div className="flex flex-wrap gap-4 mt-12">
+                <Link to="/privacy">
+                  <Button variant="glass" className="border-white/10 text-xs font-black uppercase tracking-widest px-8">Privacy Policy</Button>
+                </Link>
+                <Link to="/terms">
+                  <Button variant="glass" className="border-white/10 text-xs font-black uppercase tracking-widest px-8">Terms of Service</Button>
+                </Link>
+              </div>
             </motion.div>
             <motion.div
               initial={{ opacity: 0, scale: 0.9 }}
@@ -62,6 +70,35 @@ export const About: React.FC = () => {
                 <div className="text-xs font-black uppercase tracking-[0.3em] text-zinc-500">System Uptime</div>
               </GlassCard>
             </motion.div>
+          </div>
+
+          {/* Donation Section */}
+          <div className="mb-32">
+            <GlassCard className="p-12 border-indigo-500/20 bg-indigo-500/5 relative overflow-hidden">
+              <div className="absolute top-0 right-0 p-8 opacity-10">
+                <Heart size={120} className="text-indigo-500" />
+              </div>
+              <div className="max-w-2xl relative z-10">
+                <h2 className="text-4xl font-black uppercase tracking-tighter mb-6">Donate for <span className="text-indigo-500">Us</span></h2>
+                <p className="text-zinc-400 text-lg font-medium mb-8 leading-relaxed">
+                  Chatify is a non-profit initiative driven by the community. Your contributions help us maintain our servers, develop new features, and keep the platform free and secure for everyone.
+                </p>
+                <div className="space-y-4 mb-8">
+                  <div className="flex items-center gap-4 p-4 bg-white/5 rounded-2xl border border-white/10">
+                    <div className="w-10 h-10 bg-indigo-500/20 rounded-xl flex items-center justify-center">
+                      <Zap size={20} className="text-indigo-500" />
+                    </div>
+                    <div>
+                      <p className="text-[10px] text-zinc-500 font-black uppercase tracking-widest">Trial Details</p>
+                      <p className="text-sm font-bold text-white">Support our development with a small contribution</p>
+                    </div>
+                  </div>
+                </div>
+                <Button className="px-12 py-4 rounded-2xl font-black uppercase tracking-widest text-sm h-auto">
+                  Support Chatify
+                </Button>
+              </div>
+            </GlassCard>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-32">

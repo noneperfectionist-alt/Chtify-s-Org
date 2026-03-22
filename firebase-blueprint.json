@@ -81,6 +81,33 @@
         "createdAt": { "type": "string", "format": "date-time" }
       },
       "required": ["reporterUid", "reportedUid", "reason", "status", "createdAt"]
+    },
+    "Blog": {
+      "title": "Blog",
+      "description": "Represents a blog post.",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string" },
+        "content": { "type": "string" },
+        "image": { "type": "string", "description": "URL to blog image" },
+        "author": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["title", "content", "createdAt"]
+    },
+    "SupportTicket": {
+      "title": "SupportTicket",
+      "description": "Represents a support request from the help center.",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "email": { "type": "string", "format": "email" },
+        "subject": { "type": "string" },
+        "message": { "type": "string" },
+        "status": { "type": "string", "enum": ["pending", "resolved", "closed"] },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["name", "email", "subject", "message", "status", "createdAt"]
     }
   },
   "firestore": {
@@ -111,6 +138,14 @@
     "/reports/{reportId}": {
       "schema": "Report",
       "description": "Moderation reports"
+    },
+    "/blogs/{blogId}": {
+      "schema": "Blog",
+      "description": "Blog posts"
+    },
+    "/support_tickets/{ticketId}": {
+      "schema": "SupportTicket",
+      "description": "Support tickets from help center"
     }
   }
 }

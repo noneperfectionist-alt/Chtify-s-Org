@@ -68,9 +68,9 @@ class SocketService {
     this.socket?.emit("join-cinema", roomId);
   }
 
-  sendCinemaControl(roomId: string, action: 'play' | 'pause' | 'seek', time: number) {
+  sendCinemaControl(roomId: string, action: 'play' | 'pause' | 'seek' | 'source', time: number, sourceType?: string | null, url?: string) {
     const userId = localStorage.getItem("userId");
-    this.socket?.emit("cinema-control", { roomId, action, time, userId });
+    this.socket?.emit("cinema-control", { roomId, action, time, userId, sourceType, url });
   }
 
   onCinemaSync(callback: (data: any) => void) {

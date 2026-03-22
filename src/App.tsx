@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { Login } from "./pages/Login";
 import { SignUp } from "./pages/SignUp";
+import { ForgotPassword } from "./pages/ForgotPassword";
 import Home from "./pages/Home";
 import { Features } from "./pages/Features";
 import { About } from "./pages/About";
@@ -19,6 +20,9 @@ import NotificationSettings from "./pages/NotificationSettings";
 import { useNotifications } from "./hooks/useNotifications";
 
 import { Policies } from "./pages/Policies";
+
+import { Blog } from "./pages/Blog";
+import { BlogPost } from "./pages/BlogPost";
 
 // Notification Initializer
 const NotificationInitializer = () => {
@@ -43,6 +47,7 @@ export default function App() {
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<SignUp />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
         
         <Route path="/features" element={<Features />} />
         <Route path="/about" element={<About />} />
@@ -52,6 +57,9 @@ export default function App() {
         <Route path="/terms" element={<Policies />} />
         <Route path="/disclaimer" element={<Policies />} />
         <Route path="/policies" element={<Policies />} />
+        
+        <Route path="/blog" element={<Blog />} />
+        <Route path="/blog/:id" element={<BlogPost />} />
         
         <Route element={isAuthenticated ? <><NotificationInitializer /><MainLayout /></> : <Navigate to="/login" />}>
           <Route path="/chats" element={<Chats />} />

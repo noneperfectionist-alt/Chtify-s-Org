@@ -1,10 +1,44 @@
-import React from "react";
-import { Shield, Mail, Phone, MapPin, MessageSquare, Globe, Clock, Send } from "lucide-react";
-import { motion } from "motion/react";
+import React, { useState } from "react";
+import { Shield, Mail, Phone, MapPin, MessageSquare, Globe, Clock, Send, CheckCircle, Loader2, Users } from "lucide-react";
+import { motion, AnimatePresence } from "motion/react";
 import { GlassCard, Button, Input } from "../components/UI";
 import { Link } from "react-router-dom";
+import { db } from "../firebase";
+import { collection, addDoc, serverTimestamp } from "firebase/firestore";
 
 export const Contact: React.FC = () => {
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [subject, setSubject] = useState("General Inquiry");
+  const [message, setMessage] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSubmitted, setIsSubmitted] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!name || !email || !message) return;
+
+    setIsSubmitting(true);
+    try {
+      await addDoc(collection(db, "support_tickets"), {
+        name,
+        email,
+        subject,
+        message,
+        status: "pending",
+        createdAt: serverTimestamp()
+      });
+      setIsSubmitted(true);
+      setName("");
+      setEmail("");
+      setMessage("");
+    } catch (error) {
+      console.error("Error submitting ticket:", error);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-zinc-950 text-white selection:bg-indigo-500/30">
       {/* Navigation */}
@@ -48,17 +82,17 @@ export const Contact: React.FC = () => {
                   </div>
                   <div>
                     <p className="text-[10px] text-zinc-500 font-black uppercase tracking-[0.2em] mb-1">Email Us</p>
-                    <p className="text-lg font-bold">support@chatify.io</p>
+                    <p className="text-lg font-bold">chtifyapp@gmail.com</p>
                   </div>
                 </div>
 
                 <div className="flex items-center gap-6 group">
                   <div className="w-14 h-14 bg-emerald-500/10 rounded-2xl flex items-center justify-center border border-emerald-500/20 group-hover:scale-110 transition-transform">
-                    <MessageSquare size={24} className="text-emerald-500" />
+                    <Users size={24} className="text-emerald-500" />
                   </div>
                   <div>
-                    <p className="text-[10px] text-zinc-500 font-black uppercase tracking-[0.2em] mb-1">Live Chat</p>
-                    <p className="text-lg font-bold">Available 24/7 in-app</p>
+                    <p className="text-[10px] text-zinc-500 font-black uppercase tracking-[0.2em] mb-1">Team Name</p>
+                    <p className="text-lg font-bold">Chatify Builders</p>
                   </div>
                 </div>
 
@@ -80,33 +114,85 @@ export const Contact: React.FC = () => {
               transition={{ delay: 0.2 }}
             >
               <GlassCard className="p-10 border-white/5 bg-white/5">
-                <form className="space-y-6">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <Input label="Full Name" placeholder="John Doe" className="bg-black/40 border-white/10" />
-                    <Input label="Email Address" placeholder="john@example.com" type="email" className="bg-black/40 border-white/10" />
-                  </div>
-                  <div className="space-y-2">
-                    <label className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.2em] ml-1">Subject</label>
-                    <select className="w-full bg-black/40 border border-white/10 rounded-2xl px-4 py-4 text-sm text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/50 transition-all font-medium appearance-none">
-                      <option>General Inquiry</option>
-                      <option>Technical Support</option>
-                      <option>Security Report</option>
-                      <option>Partnership</option>
-                      <option>Other</option>
-                    </select>
-                  </div>
-                  <div className="space-y-2">
-                    <label className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.2em] ml-1">Message</label>
-                    <textarea 
-                      placeholder="How can we help you?"
-                      className="w-full bg-black/40 border border-white/10 rounded-2xl px-4 py-4 text-sm text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/50 transition-all font-medium min-h-[150px] resize-none"
-                    />
-                  </div>
-                  <Button className="w-full py-4 rounded-2xl font-black uppercase tracking-widest text-sm flex items-center justify-center gap-3">
-                    <Send size={18} />
-                    Send Message
-                  </Button>
-                </form>
+                <AnimatePresence mode="wait">
+                  {isSubmitted ? (
+                    <motion.div
+                      key="success"
+                      initial={{ opacity: 0, scale: 0.9 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      className="text-center py-12"
+                    >
+                      <div className="w-20 h-20 bg-emerald-500/10 rounded-full flex items-center justify-center mx-auto mb-6 border border-emerald-500/20">
+                        <CheckCircle size={40} className="text-emerald-500" />
+                      </div>
+                      <h3 className="text-2xl font-black uppercase tracking-tighter mb-2">Message Sent!</h3>
+                      <p className="text-zinc-500 text-sm font-medium mb-8">Our team will get back to you shortly.</p>
+                      <Button onClick={() => setIsSubmitted(false)} variant="secondary" className="px-8 rounded-xl">
+                        Send Another Message
+                      </Button>
+                    </motion.div>
+                  ) : (
+                    <form onSubmit={handleSubmit} className="space-y-6">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <Input 
+                          label="Full Name" 
+                          placeholder="John Doe" 
+                          className="bg-black/40 border-white/10"
+                          value={name}
+                          onChange={(e) => setName(e.target.value)}
+                          required
+                        />
+                        <Input 
+                          label="Email Address" 
+                          placeholder="john@example.com" 
+                          type="email" 
+                          className="bg-black/40 border-white/10"
+                          value={email}
+                          onChange={(e) => setEmail(e.target.value)}
+                          required
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <label className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.2em] ml-1">Subject</label>
+                        <select 
+                          value={subject}
+                          onChange={(e) => setSubject(e.target.value)}
+                          className="w-full bg-black/40 border border-white/10 rounded-2xl px-4 py-4 text-sm text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/50 transition-all font-medium appearance-none"
+                        >
+                          <option>General Inquiry</option>
+                          <option>Technical Support</option>
+                          <option>Security Report</option>
+                          <option>Partnership</option>
+                          <option>Other</option>
+                        </select>
+                      </div>
+                      <div className="space-y-2">
+                        <label className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.2em] ml-1">Message</label>
+                        <textarea 
+                          placeholder="How can we help you?"
+                          value={message}
+                          onChange={(e) => setMessage(e.target.value)}
+                          className="w-full bg-black/40 border border-white/10 rounded-2xl px-4 py-4 text-sm text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/50 transition-all font-medium min-h-[150px] resize-none"
+                          required
+                        />
+                      </div>
+                      <Button 
+                        type="submit"
+                        disabled={isSubmitting}
+                        className="w-full py-4 rounded-2xl font-black uppercase tracking-widest text-sm flex items-center justify-center gap-3"
+                      >
+                        {isSubmitting ? (
+                          <Loader2 size={18} className="animate-spin" />
+                        ) : (
+                          <>
+                            <Send size={18} />
+                            Send Message
+                          </>
+                        )}
+                      </Button>
+                    </form>
+                  )}
+                </AnimatePresence>
               </GlassCard>
             </motion.div>
           </div>

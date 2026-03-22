@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { GlassCard, Button, Input } from "../components/UI";
-import { Users, UserCheck, UserX, Trash2, Shield, Activity, Search, Filter, Lock, Mail, Key, Loader2, Eye, EyeOff, LogOut, FileText, AlertCircle, Send, Download, Settings } from "lucide-react";
+import { Users, UserCheck, UserX, Trash2, Shield, Activity, Search, Filter, Lock, Mail, Key, Loader2, Eye, EyeOff, LogOut, FileText, AlertCircle, Send, Download, Settings, Plus, Image as ImageIcon, CheckCircle } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
-import { db } from "../firebase";
-import { doc, getDoc, setDoc, updateDoc, collection, query, where, getDocs, deleteDoc, orderBy, limit, onSnapshot } from "firebase/firestore";
+import { db, storage } from "../firebase";
+import { doc, getDoc, setDoc, updateDoc, collection, query, where, getDocs, deleteDoc, orderBy, limit, onSnapshot, addDoc, serverTimestamp } from "firebase/firestore";
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { cn } from "../utils/cn";
 
 const ADMIN_EMAIL = "chtifyapp@gmail.com";
@@ -19,7 +20,7 @@ enum OperationType {
 
 export const AdminDashboard: React.FC = () => {
   const [activeTab, setActiveTab] = useState<
-    "stats" | "users" | "requests" | "logs" | "system" | "security" | "reports" | "notifications" | "email" | "storage" | "features" | "api" | "settings"
+    "stats" | "users" | "requests" | "logs" | "system" | "security" | "reports" | "notifications" | "email" | "storage" | "features" | "api" | "settings" | "blogs" | "support"
   >("stats");
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [authStep, setAuthStep] = useState<"loading" | "setup" | "login" | "verify">("loading");
@@ -35,7 +36,16 @@ export const AdminDashboard: React.FC = () => {
   const [pendingRequests, setPendingRequests] = useState<any[]>([]);
   const [activityLogs, setActivityLogs] = useState<any[]>([]);
   const [reportsList, setReportsList] = useState<any[]>([]);
+  const [blogsList, setBlogsList] = useState<any[]>([]);
+  const [supportTickets, setSupportTickets] = useState<any[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
+
+  // Blog Creation State
+  const [isCreatingBlog, setIsCreatingBlog] = useState(false);
+  const [blogTitle, setBlogTitle] = useState("");
+  const [blogContent, setBlogContent] = useState("");
+  const [blogImage, setBlogImage] = useState<File | null>(null);
+  const [blogImagePreview, setBlogImagePreview] = useState<string | null>(null);
 
   useEffect(() => {
     checkAdminStatus();
@@ -65,11 +75,21 @@ export const AdminDashboard: React.FC = () => {
         setReportsList(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
       });
 
+      const unsubBlogs = onSnapshot(query(collection(db, "blogs"), orderBy("createdAt", "desc")), (snapshot) => {
+        setBlogsList(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+      });
+
+      const unsubSupport = onSnapshot(query(collection(db, "support_tickets"), orderBy("createdAt", "desc")), (snapshot) => {
+        setSupportTickets(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+      });
+
       return () => {
         unsubUsers();
         unsubRequests();
         unsubLogs();
         unsubReports();
+        unsubBlogs();
+        unsubSupport();
       };
     }
   }, [isAuthenticated]);
@@ -227,6 +247,60 @@ export const AdminDashboard: React.FC = () => {
       setError("Verification failed.");
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleCreateBlog = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!blogTitle || !blogContent) return;
+    setIsLoading(true);
+    try {
+      let imageUrl = "";
+      if (blogImage) {
+        const imageRef = ref(storage, `blogs/${Date.now()}_${blogImage.name}`);
+        await uploadBytes(imageRef, blogImage);
+        imageUrl = await getDownloadURL(imageRef);
+      }
+
+      await addDoc(collection(db, "blogs"), {
+        title: blogTitle,
+        content: blogContent,
+        image: imageUrl,
+        author: "Admin",
+        createdAt: new Date().toISOString()
+      });
+
+      setBlogTitle("");
+      setBlogContent("");
+      setBlogImage(null);
+      setBlogImagePreview(null);
+      setIsCreatingBlog(false);
+      await logAction("Blog Created", `Published new blog: ${blogTitle}`, "success");
+    } catch (err) {
+      handleFirestoreError(err, OperationType.CREATE, "blogs");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleResolveTicket = async (ticketId: string) => {
+    try {
+      await updateDoc(doc(db, "support_tickets", ticketId), {
+        status: "resolved"
+      });
+      await logAction("Ticket Resolved", `Marked ticket ${ticketId} as resolved`, "success");
+    } catch (err) {
+      handleFirestoreError(err, OperationType.UPDATE, `support_tickets/${ticketId}`);
+    }
+  };
+
+  const handleDeleteBlog = async (blogId: string, title: string) => {
+    if (!window.confirm(`Delete blog "${title}"?`)) return;
+    try {
+      await deleteDoc(doc(db, "blogs", blogId));
+      await logAction("Blog Deleted", `Removed blog: ${title}`, "warning");
+    } catch (err) {
+      handleFirestoreError(err, OperationType.DELETE, `blogs/${blogId}`);
     }
   };
 
@@ -394,6 +468,8 @@ export const AdminDashboard: React.FC = () => {
     { id: "stats", label: "Dashboard", icon: Activity },
     { id: "users", label: "User Management", icon: Users },
     { id: "requests", label: "Atithi Requests", icon: UserCheck },
+    { id: "blogs", label: "Blog Management", icon: FileText },
+    { id: "support", label: "Support Tickets", icon: Mail },
     { id: "logs", label: "Activity Logs", icon: FileText },
     { id: "system", label: "System Monitor", icon: Activity },
     { id: "security", label: "Security Center", icon: Shield },
@@ -790,6 +866,206 @@ export const AdminDashboard: React.FC = () => {
                         <tr>
                           <td colSpan={4} className="px-8 py-12 text-center text-zinc-600 font-bold uppercase tracking-widest text-xs">
                             No activity logs recorded yet
+                          </td>
+                        </tr>
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              </GlassCard>
+            </div>
+          )}
+
+          {activeTab === "blogs" && (
+            <div className="space-y-6">
+              <div className="flex justify-between items-center">
+                <div>
+                  <h2 className="text-xl font-black text-white uppercase tracking-tighter">Blog Management</h2>
+                  <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest mt-1">Create and manage platform updates</p>
+                </div>
+                <Button onClick={() => setIsCreatingBlog(true)} className="px-6 rounded-xl">
+                  <Plus size={18} className="mr-2" />
+                  New Blog Post
+                </Button>
+              </div>
+
+              <AnimatePresence>
+                {isCreatingBlog && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -20 }}
+                  >
+                    <GlassCard className="p-8 border-white/10 bg-white/5">
+                      <form onSubmit={handleCreateBlog} className="space-y-6">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                          <div className="space-y-6">
+                            <Input
+                              label="Blog Title"
+                              placeholder="Enter title..."
+                              value={blogTitle}
+                              onChange={(e) => setBlogTitle(e.target.value)}
+                              required
+                            />
+                            <div className="space-y-2">
+                              <label className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.2em] ml-1">Content</label>
+                              <textarea
+                                value={blogContent}
+                                onChange={(e) => setBlogContent(e.target.value)}
+                                className="w-full h-48 bg-black/40 border border-white/10 rounded-2xl p-4 text-sm text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/50 transition-all placeholder:text-zinc-700 font-medium"
+                                placeholder="Write your blog content here..."
+                                required
+                              />
+                            </div>
+                          </div>
+                          <div className="space-y-6">
+                            <div className="space-y-2">
+                              <label className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.2em] ml-1">Cover Image</label>
+                              <div 
+                                className="w-full aspect-video bg-black/40 border-2 border-dashed border-white/10 rounded-2xl flex flex-col items-center justify-center relative overflow-hidden group cursor-pointer"
+                                onClick={() => document.getElementById('blog-image-input')?.click()}
+                              >
+                                {blogImagePreview ? (
+                                  <img src={blogImagePreview} alt="Preview" className="w-full h-full object-cover" />
+                                ) : (
+                                  <>
+                                    <ImageIcon size={48} className="text-zinc-700 group-hover:text-indigo-500 transition-colors" />
+                                    <p className="text-[10px] text-zinc-600 font-bold uppercase tracking-widest mt-4">Click to upload image</p>
+                                  </>
+                                )}
+                                <input
+                                  id="blog-image-input"
+                                  type="file"
+                                  accept="image/*"
+                                  className="hidden"
+                                  onChange={(e) => {
+                                    const file = e.target.files?.[0];
+                                    if (file) {
+                                      setBlogImage(file);
+                                      setBlogImagePreview(URL.createObjectURL(file));
+                                    }
+                                  }}
+                                />
+                              </div>
+                            </div>
+                            <div className="flex gap-4">
+                              <Button type="submit" disabled={isLoading} className="flex-1 h-12">
+                                {isLoading ? <Loader2 className="animate-spin" /> : "Publish Blog"}
+                              </Button>
+                              <Button 
+                                type="button" 
+                                variant="secondary" 
+                                onClick={() => setIsCreatingBlog(false)}
+                                className="px-8 h-12"
+                              >
+                                Cancel
+                              </Button>
+                            </div>
+                          </div>
+                        </div>
+                      </form>
+                    </GlassCard>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {blogsList.map((blog) => (
+                  <GlassCard key={blog.id} className="p-0 overflow-hidden border-white/5 bg-white/5 flex flex-col group">
+                    <div className="aspect-video relative overflow-hidden">
+                      <img 
+                        src={blog.image || "https://picsum.photos/seed/blog/800/600"} 
+                        alt={blog.title} 
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                        referrerPolicy="no-referrer"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent" />
+                      <div className="absolute bottom-4 left-4 right-4">
+                        <h4 className="text-white font-black uppercase tracking-tighter text-lg leading-tight">{blog.title}</h4>
+                      </div>
+                    </div>
+                    <div className="p-6 flex-1 flex flex-col">
+                      <p className="text-zinc-400 text-xs line-clamp-3 mb-6 flex-1">{blog.content}</p>
+                      <div className="flex items-center justify-between pt-4 border-t border-white/5">
+                        <span className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest">
+                          {new Date(blog.createdAt).toLocaleDateString()}
+                        </span>
+                        <Button 
+                          variant="glass" 
+                          size="sm" 
+                          onClick={() => handleDeleteBlog(blog.id, blog.title)}
+                          className="p-2 text-rose-500 border-white/10"
+                        >
+                          <Trash2 size={16} />
+                        </Button>
+                      </div>
+                    </div>
+                  </GlassCard>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {activeTab === "support" && (
+            <div className="space-y-6">
+              <div className="flex justify-between items-center">
+                <div>
+                  <h2 className="text-xl font-black text-white uppercase tracking-tighter">Support Tickets</h2>
+                  <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest mt-1">Help Center inquiries and user feedback</p>
+                </div>
+              </div>
+
+              <GlassCard className="overflow-hidden p-0 border-white/5 bg-white/5">
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left">
+                    <thead className="bg-black/40 text-zinc-500 text-[10px] uppercase tracking-[0.2em] font-black">
+                      <tr>
+                        <th className="px-8 py-6">User</th>
+                        <th className="px-8 py-6">Subject</th>
+                        <th className="px-8 py-6">Message</th>
+                        <th className="px-8 py-6">Status</th>
+                        <th className="px-8 py-6 text-right">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-white/5">
+                      {supportTickets.map((ticket) => (
+                        <tr key={ticket.id} className="hover:bg-white/5 transition-colors">
+                          <td className="px-8 py-6">
+                            <p className="text-white font-bold text-xs">{ticket.name}</p>
+                            <p className="text-[10px] text-zinc-500 font-medium">{ticket.email}</p>
+                          </td>
+                          <td className="px-8 py-6 text-indigo-400 font-bold text-xs uppercase tracking-widest">{ticket.subject}</td>
+                          <td className="px-8 py-6">
+                            <p className="text-zinc-400 text-xs font-medium line-clamp-2 max-w-xs">{ticket.message}</p>
+                          </td>
+                          <td className="px-8 py-6">
+                            <span className={cn(
+                              "px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest border",
+                              ticket.status === "pending" ? "bg-amber-500/10 text-amber-500 border-amber-500/20" : 
+                              "bg-emerald-500/10 text-emerald-500 border-emerald-500/20"
+                            )}>
+                              {ticket.status}
+                            </span>
+                          </td>
+                          <td className="px-8 py-6 text-right">
+                            {ticket.status === "pending" && (
+                              <Button 
+                                size="sm" 
+                                variant="glass" 
+                                onClick={() => handleResolveTicket(ticket.id)}
+                                className="border-white/10 text-emerald-500"
+                              >
+                                <CheckCircle size={16} className="mr-2" />
+                                Resolve
+                              </Button>
+                            )}
+                          </td>
+                        </tr>
+                      ))}
+                      {supportTickets.length === 0 && (
+                        <tr>
+                          <td colSpan={5} className="px-8 py-12 text-center text-zinc-600 font-bold uppercase tracking-widest text-xs">
+                            No support tickets found
                           </td>
                         </tr>
                       )}

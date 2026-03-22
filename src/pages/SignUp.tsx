@@ -11,6 +11,7 @@ export const SignUp: React.FC = () => {
   const [email, setEmail] = useState("");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [userType, setUserType] = useState<"normal" | "special_atithi">("normal");
@@ -27,12 +28,18 @@ export const SignUp: React.FC = () => {
 
     const checkUsername = async () => {
       setIsCheckingUsername(true);
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 5000);
+
       try {
-        const q = query(collection(db, "users"), where("username", "==", username));
-        const querySnapshot = await getDocs(q);
-        setUsernameStatus(querySnapshot.empty ? "available" : "taken");
+        const response = await fetch(`/api/check-username/${encodeURIComponent(username)}`, { signal: controller.signal });
+        clearTimeout(timeoutId);
+        if (!response.ok) throw new Error("Failed to check username");
+        const data = await response.json();
+        setUsernameStatus(data.available ? "available" : "taken");
       } catch (error) {
         console.error("Error checking username:", error);
+        setUsernameStatus(null);
       } finally {
         setIsCheckingUsername(false);
       }
@@ -45,6 +52,11 @@ export const SignUp: React.FC = () => {
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
     if (usernameStatus !== "available" || isLoading) return;
+    
+    if (password !== confirmPassword) {
+      setError("Passwords do not match.");
+      return;
+    }
     
     setIsLoading(true);
     setError(null);
@@ -73,11 +85,23 @@ export const SignUp: React.FC = () => {
       });
 
       // 4. Send Verification Email (OTP)
-      await fetch("/api/send-verification", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, code: otp }),
-      });
+      try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 10000); // 10s timeout for email
+
+        const response = await fetch("/api/send-verification", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, code: otp }),
+          signal: controller.signal
+        });
+        clearTimeout(timeoutId);
+        if (!response.ok) {
+          console.warn("Verification email failed to send, but continuing signup.");
+        }
+      } catch (e) {
+        console.error("Email API error:", e);
+      }
 
       localStorage.setItem("isLoggedIn", "true");
       localStorage.setItem("userId", user.uid);
@@ -175,6 +199,24 @@ export const SignUp: React.FC = () => {
                 placeholder="••••••••"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
+                required
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-[38px] text-zinc-500 hover:text-zinc-300 transition-colors"
+              >
+                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+              </button>
+            </div>
+
+            <div className="relative">
+              <Input
+                label="Confirm Password"
+                type={showPassword ? "text" : "password"}
+                placeholder="••••••••"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
                 required
               />
               <button

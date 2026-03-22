@@ -15,10 +15,26 @@ export const Help: React.FC = () => {
   ];
 
   const faqs = [
-    { q: "How secure is Chatify?", a: "Chatify uses end-to-end encryption for all messages and media. This means only you and the person you're communicating with can read what is sent." },
-    { q: "What is Special Atithi status?", a: "Special Atithi is a verified status for recognized community members, creators, and public figures. It comes with a unique badge and exclusive features." },
-    { q: "How do I use the Vault?", a: "The Vault is located in your profile settings. You can set a separate master password to store sensitive notes and media securely." },
-    { q: "Is Chatify free to use?", a: "Yes, Chatify is free to use for all basic communication features. We may offer premium features in the future to support development." }
+    { q: "What is Chatify?", a: "Chatify is a secure, privacy-focused messaging platform that allows users to chat, call, and share content with end-to-end protection." },
+    { q: "Is Chatify secure?", a: "Yes, Chatify uses advanced encryption to ensure that only you and the person you're communicating with can access your messages." },
+    { q: "Can Chatify read my messages?", a: "No. Chatify cannot read, access, or store your private messages or media." },
+    { q: "Is Chatify free to use?", a: "Yes, Chatify is free to use with all core features available to users." },
+    { q: "What makes Chatify different from other apps?", a: "Chatify prioritizes user privacy, offers a unique 'Cinema' feature for synced watching, and includes a secure 'Vault' for sensitive data." },
+    { q: "How do I create an account?", a: "You can sign up using your email address or via Google login for a faster experience." },
+    { q: "Can I use Chatify on multiple devices?", a: "Yes, Chatify is designed to be accessible across various devices while maintaining synchronization." },
+    { q: "What is the 'Cinema' feature?", a: "Cinema allows you to watch YouTube videos or uploaded content in real-time sync with your friends." },
+    { q: "How do I add friends?", a: "You can search for users by their unique username and send them a friend request." },
+    { q: "What is the 'Vault'?", a: "The Vault is a password-protected area within the app where you can store private notes and media." },
+    { q: "How do I report a user?", a: "You can report any user for policy violations through their profile or directly from the chat menu." },
+    { q: "Can I delete my account?", a: "Yes, you can permanently delete your account and all associated data from the settings menu." },
+    { q: "What are 'Special Atithi' requests?", a: "These are requests for a verified status badge, typically for creators or community leaders." },
+    { q: "How do I share my location?", a: "You can share your real-time or static location with friends through the chat attachment menu." },
+    { q: "Are voice and video calls encrypted?", a: "Yes, all calls made through Chatify are protected with end-to-end encryption." },
+    { q: "What happens if I forget my password?", a: "You can use the 'Forgot Password' link on the login page to receive a reset link via email." },
+    { q: "Can I send large files?", a: "Yes, Chatify supports sharing various file types, including high-quality images and videos." },
+    { q: "How do I manage my notifications?", a: "Notification settings can be customized in your profile to control alerts for messages, calls, and requests." },
+    { q: "Is there a dark mode?", a: "Chatify features a sleek, modern dark interface by default to reduce eye strain and save battery." },
+    { q: "How can I contact support?", a: "You can reach out to us through the Help Center form or by emailing chtifyapp@gmail.com." }
   ];
 
   return (

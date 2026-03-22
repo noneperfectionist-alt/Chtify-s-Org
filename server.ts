@@ -106,6 +106,19 @@ async function startServer() {
     res.json({ status: "ok" });
   });
 
+  app.get("/api/check-username/:username", async (req, res) => {
+    const { username } = req.params;
+    if (!db) return res.status(503).json({ error: "Database not available" });
+
+    try {
+      const snapshot = await db.collection("users").where("username", "==", username).get();
+      res.json({ available: snapshot.empty });
+    } catch (error) {
+      console.error("Check username error:", error);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
   // Admin Push API
   app.post("/api/admin/send-push", async (req, res) => {
     const { target, title, body, data } = req.body;
@@ -194,6 +207,11 @@ async function startServer() {
       console.error("Email error:", error);
       res.status(500).json({ error: "Failed to send email." });
     }
+  });
+
+  // Fallback for missing API routes to prevent returning HTML index
+  app.all("/api/*", (req, res) => {
+    res.status(404).json({ error: "API route not found" });
   });
 
   // Socket.io logic
