@@ -319,7 +319,7 @@ export const AdminDashboard: React.FC = () => {
               <Shield size={40} className="text-indigo-500" />
             </div>
             <h1 className="text-4xl font-black text-white tracking-tighter uppercase">Admin Portal</h1>
-            <p className="text-zinc-500 text-sm mt-2 font-medium tracking-widest uppercase">Chatify Security Gateway</p>
+            <p className="text-zinc-500 text-sm mt-2 font-medium tracking-widest uppercase">Nexora Security Gateway</p>
           </div>
 
           <GlassCard className="border-white/5 bg-white/5 backdrop-blur-2xl">
@@ -457,7 +457,7 @@ export const AdminDashboard: React.FC = () => {
           </GlassCard>
           
           <p className="text-center mt-8 text-[10px] text-zinc-700 font-bold uppercase tracking-[0.3em]">
-            Chatify Administrative Network v4.0
+            Nexora Administrative Network v4.0
           </p>
         </motion.div>
       </div>
@@ -1142,7 +1142,7 @@ export const AdminDashboard: React.FC = () => {
               <div className="text-center">
                 <h3 className="text-2xl font-black text-white uppercase tracking-tighter">Module Under Construction</h3>
                 <p className="text-zinc-500 text-[10px] font-bold uppercase tracking-[0.2em] mt-2">
-                  Chatify Admin Expansion v4.0.1 - {activeTab.toUpperCase()}
+                  Nexora Admin Expansion v4.0.1 - {activeTab.toUpperCase()}
                 </p>
               </div>
               <Button variant="secondary" onClick={() => setActiveTab("stats")} className="px-8 rounded-2xl">

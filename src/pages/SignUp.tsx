@@ -130,7 +130,7 @@ export const SignUp: React.FC = () => {
       >
         <div className="text-center mb-8">
           <h1 className="text-4xl font-bold text-foreground tracking-tight mb-2">
-            Chatify
+            Nexora
           </h1>
           <p className="text-muted-foreground">Join the next-generation social platform.</p>
         </div>
@@ -240,14 +240,11 @@ export const SignUp: React.FC = () => {
 
             <Button
               type="submit"
-              disabled={usernameStatus !== "available" || isLoading}
-              className="w-full flex items-center justify-center gap-2 mt-2"
+              isLoading={isLoading}
+              disabled={usernameStatus !== "available"}
+              className="w-full mt-2"
             >
-              {isLoading ? (
-                <Loader2 size={18} className="animate-spin" />
-              ) : (
-                <UserPlus size={18} />
-              )}
+              {!isLoading && <UserPlus size={18} />}
               {userType === "special_atithi" ? "Request Approval" : "Sign Up"}
             </Button>
           </form>

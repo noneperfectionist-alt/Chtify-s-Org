@@ -160,16 +160,16 @@ async function startServer() {
 
     try {
       await transporter.sendMail({
-        from: `"Chatify" <${process.env.GMAIL_USER}>`,
+        from: `"Nexora" <${process.env.GMAIL_USER}>`,
         to: email,
-        subject: "Welcome to Chatify! 🚀",
+        subject: "Welcome to Nexora! 🚀",
         html: `
           <div style="font-family: sans-serif; padding: 20px; background: #09090b; color: #fff; border-radius: 12px;">
-            <h1 style="color: #6366f1;">Welcome to Chatify, ${username}!</h1>
+            <h1 style="color: #6366f1;">Welcome to Nexora, ${username}!</h1>
             <p>We're excited to have you on board. Start chatting with your friends and explore the cinema together!</p>
             <p>If you have any questions, just reply to this email.</p>
             <br/>
-            <p style="color: #71717a; font-size: 12px;">© 2026 Chatify Inc.</p>
+            <p style="color: #71717a; font-size: 12px;">© 2026 Nexora Inc.</p>
           </div>
         `,
       });
@@ -189,16 +189,16 @@ async function startServer() {
 
     try {
       await transporter.sendMail({
-        from: `"Chatify" <${process.env.GMAIL_USER}>`,
+        from: `"Nexora" <${process.env.GMAIL_USER}>`,
         to: email,
-        subject: "Verify your Chatify account",
+        subject: "Verify your Nexora account",
         html: `
           <div style="font-family: sans-serif; padding: 20px; background: #09090b; color: #fff; border-radius: 12px;">
             <h1 style="color: #6366f1;">Verification Code</h1>
             <p>Your verification code is: <strong style="font-size: 24px; color: #fff;">${code}</strong></p>
             <p>Enter this code in the app to verify your email address.</p>
             <br/>
-            <p style="color: #71717a; font-size: 12px;">© 2026 Chatify Inc.</p>
+            <p style="color: #71717a; font-size: 12px;">© 2026 Nexora Inc.</p>
           </div>
         `,
       });

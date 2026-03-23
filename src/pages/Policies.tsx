@@ -9,10 +9,10 @@ export const Policies: React.FC = () => {
 
   const sections = [
     {
-      title: "📜 CHATIFY PRIVACY POLICY",
+      title: "📜 NEXORA PRIVACY POLICY",
       icon: Shield,
       content: `
-        Chatify is a privacy-first communication platform designed to protect user data and ensure secure interactions.
+        Nexora is a privacy-first communication platform designed to protect user data and ensure secure interactions.
 
         1. Information We Collect
         We collect only the minimum required information:
@@ -29,9 +29,9 @@ export const Policies: React.FC = () => {
         - Personal notes or private files
 
         2. Data Security
-        All communication on Chatify is protected using advanced encryption technologies.
+        All communication on Nexora is protected using advanced encryption technologies.
         Only the sender and receiver can access the content.
-        Chatify does not have access to user conversations or shared media.
+        Nexora does not have access to user conversations or shared media.
 
         3. Data Usage
         We use collected data only for:
@@ -58,7 +58,7 @@ export const Policies: React.FC = () => {
         - Deleted accounts are permanently removed
 
         7. Children’s Privacy
-        Chatify is not intended for users under the age of 13.
+        Nexora is not intended for users under the age of 13.
 
         8. Policy Updates
         We may update this policy from time to time. Users will be notified within the app.
@@ -68,10 +68,10 @@ export const Policies: React.FC = () => {
       title: "📜 TERMS & CONDITIONS",
       icon: FileText,
       content: `
-        By using Chatify, you agree to the following terms:
+        By using Nexora, you agree to the following terms:
 
         1. Acceptance of Terms
-        By accessing or using Chatify, you agree to comply with these Terms & Conditions.
+        By accessing or using Nexora, you agree to comply with these Terms & Conditions.
 
         2. User Eligibility
         - You must be at least 13 years old
@@ -93,10 +93,10 @@ export const Policies: React.FC = () => {
 
         6. Content Responsibility
         Users are solely responsible for the content they share.
-        Chatify does not monitor or control private communications.
+        Nexora does not monitor or control private communications.
 
         7. Account Suspension & Termination
-        Chatify reserves the right to:
+        Nexora reserves the right to:
         - Suspend or terminate accounts violating policies
         - Remove content if required by law
 
@@ -114,7 +114,7 @@ export const Policies: React.FC = () => {
       icon: Scale,
       content: `
         1. No Liability
-        Chatify is provided “as is” without warranties of any kind.
+        Nexora is provided “as is” without warranties of any kind.
         We are not responsible for:
         - User-generated content
         - Loss of data or communication
@@ -127,20 +127,20 @@ export const Policies: React.FC = () => {
         - Account security
 
         3. Third-Party Services
-        Chatify may integrate third-party services.
+        Nexora may integrate third-party services.
         We are not responsible for their content or policies.
 
         4. No Monitoring Guarantee
-        Chatify does not actively monitor private communications.
+        Nexora does not actively monitor private communications.
         Users must report any violations.
 
         5. Limitation of Liability
-        Chatify shall not be liable for:
+        Nexora shall not be liable for:
         - Indirect or incidental damages
         - Data loss or service interruptions
 
         6. Legal Compliance
-        Users agree to use Chatify in compliance with all applicable laws and regulations.
+        Users agree to use Nexora in compliance with all applicable laws and regulations.
       `,
     },
   ];
@@ -180,7 +180,7 @@ export const Policies: React.FC = () => {
 
         <footer className="text-center py-8 border-t border-border">
           <p className="text-sm text-muted-foreground">
-            Chatify respects your privacy. We do not store or access your personal conversations. Use responsibly. Terms apply.
+            Nexora respects your privacy. We do not store or access your personal conversations. Use responsibly. Terms apply.
           </p>
         </footer>
       </div>

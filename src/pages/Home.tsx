@@ -37,7 +37,7 @@ const Home: React.FC = () => {
             transition={{ delay: 0.2 }}
             className="max-w-2xl mx-auto text-zinc-400 text-lg mb-12 font-medium"
           >
-            Chatify is the next-generation messaging platform built on total privacy. 
+            Nexora is the next-generation messaging platform built on total privacy.
             End-to-end encryption, zero data harvesting, and a suite of powerful features.
           </motion.p>
           
@@ -66,7 +66,7 @@ const Home: React.FC = () => {
       <section className="py-24 px-6 bg-zinc-900/30">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-20">
-            <h2 className="text-4xl font-black uppercase tracking-tighter mb-4">Why Choose Chatify?</h2>
+            <h2 className="text-4xl font-black uppercase tracking-tighter mb-4">Why Choose Nexora?</h2>
             <p className="text-zinc-500 font-medium">Engineered for the security-conscious individual.</p>
           </div>
           
@@ -121,7 +121,7 @@ const Home: React.FC = () => {
           <p className="text-zinc-400 text-lg mb-12">Join thousands of users who have already reclaimed their privacy.</p>
           <Link to="/signup">
             <Button className="h-16 px-12 text-xl font-black uppercase tracking-widest rounded-2xl shadow-[0_0_40px_rgba(79,70,229,0.3)]">
-              Join Chatify Now
+              Join Nexora Now
             </Button>
           </Link>
         </div>
@@ -133,7 +133,7 @@ const Home: React.FC = () => {
           <div className="col-span-2 md:col-span-1">
             <div className="flex items-center gap-2 mb-6">
               <Shield className="text-indigo-500" />
-              <span className="text-2xl font-black tracking-tighter uppercase">Chatify</span>
+              <span className="text-2xl font-black tracking-tighter uppercase">Nexora</span>
             </div>
             <p className="text-zinc-600 text-sm font-medium">The future of private communication.</p>
           </div>
@@ -173,7 +173,7 @@ const Home: React.FC = () => {
           </div>
         </div>
         <div className="max-w-7xl mx-auto mt-20 pt-8 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-4">
-          <p className="text-zinc-700 text-[10px] font-bold uppercase tracking-[0.3em]">© 2026 Chatify Network. All rights reserved.</p>
+          <p className="text-zinc-700 text-[10px] font-bold uppercase tracking-[0.3em]">© 2026 Nexora Network. All rights reserved.</p>
           <div className="flex gap-6">
             <Smartphone size={18} className="text-zinc-700" />
             <Zap size={18} className="text-zinc-700" />

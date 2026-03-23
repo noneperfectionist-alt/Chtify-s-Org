@@ -42,10 +42,10 @@ export const Blog: React.FC = () => {
           className="text-center mb-16"
         >
           <h1 className="text-5xl md:text-7xl font-black uppercase tracking-tighter mb-4">
-            Chatify <span className="text-indigo-500">Blog</span>
+            Nexora <span className="text-indigo-500">Blog</span>
           </h1>
           <p className="text-zinc-400 text-lg max-w-2xl mx-auto">
-            Stay updated with the latest news, security tips, and feature announcements from the Chatify team.
+            Stay updated with the latest news, security tips, and feature announcements from the Nexora team.
           </p>
         </motion.div>
 

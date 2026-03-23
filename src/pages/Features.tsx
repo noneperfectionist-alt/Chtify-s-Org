@@ -8,7 +8,7 @@ export const Features: React.FC = () => {
   const features = [
     {
       title: "End-to-End Encryption",
-      description: "Your messages are encrypted from the moment you send them until they reach the recipient. No one else, not even Chatify, can read them.",
+      description: "Your messages are encrypted from the moment you send them until they reach the recipient. No one else, not even Nexora, can read them.",
       icon: Shield,
       color: "text-indigo-500",
       bg: "bg-indigo-500/10"
@@ -59,7 +59,7 @@ export const Features: React.FC = () => {
             <div className="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center shadow-[0_0_20px_rgba(79,70,229,0.3)] group-hover:scale-110 transition-transform">
               <Shield size={24} className="text-white" />
             </div>
-            <span className="text-2xl font-black tracking-tighter uppercase">Chatify</span>
+            <span className="text-2xl font-black tracking-tighter uppercase">Nexora</span>
           </Link>
           <div className="hidden md:flex items-center gap-8">
             <Link to="/features" className="text-sm font-bold uppercase tracking-widest text-indigo-500">Features</Link>
@@ -88,7 +88,7 @@ export const Features: React.FC = () => {
               transition={{ delay: 0.1 }}
               className="text-zinc-400 text-lg max-w-2xl mx-auto font-medium"
             >
-              Explore the cutting-edge features that make Chatify the most secure and engaging communication platform available today.
+              Explore the cutting-edge features that make Nexora the most secure and engaging communication platform available today.
             </motion.p>
           </div>
 
@@ -116,7 +116,7 @@ export const Features: React.FC = () => {
           <div className="mt-32 text-center">
             <GlassCard className="p-12 border-indigo-500/20 bg-indigo-500/5 max-w-4xl mx-auto">
               <h2 className="text-3xl font-black uppercase tracking-tighter mb-6">Ready to experience the future?</h2>
-              <p className="text-zinc-400 mb-10 font-medium">Join thousands of users who trust Chatify for their daily communication.</p>
+              <p className="text-zinc-400 mb-10 font-medium">Join thousands of users who trust Nexora for their daily communication.</p>
               <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
                 <Link to="/signup">
                   <Button className="px-10 py-4 rounded-2xl font-black uppercase tracking-widest text-sm h-auto">Get Started Now</Button>
@@ -136,7 +136,7 @@ export const Features: React.FC = () => {
           <div className="col-span-2 md:col-span-1">
             <Link to="/" className="flex items-center gap-2 mb-6">
               <Shield size={24} className="text-indigo-500" />
-              <span className="text-xl font-black tracking-tighter uppercase">Chatify</span>
+              <span className="text-xl font-black tracking-tighter uppercase">Nexora</span>
             </Link>
             <p className="text-zinc-500 text-sm font-medium leading-relaxed">
               The ultimate secure communication platform for the modern era.
@@ -167,7 +167,7 @@ export const Features: React.FC = () => {
           </div>
         </div>
         <div className="max-w-7xl mx-auto mt-20 pt-8 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-4">
-          <p className="text-zinc-600 text-[10px] font-bold uppercase tracking-widest">© 2026 Chatify Inc. All rights reserved.</p>
+          <p className="text-zinc-600 text-[10px] font-bold uppercase tracking-widest">© 2026 Nexora Inc. All rights reserved.</p>
           <div className="flex gap-6">
             <span className="text-zinc-600 text-[10px] font-bold uppercase tracking-widest">v4.0.1 Stable</span>
             <span className="text-zinc-600 text-[10px] font-bold uppercase tracking-widest">System: Operational</span>

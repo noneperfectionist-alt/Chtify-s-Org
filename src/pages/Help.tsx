@@ -15,13 +15,13 @@ export const Help: React.FC = () => {
   ];
 
   const faqs = [
-    { q: "What is Chatify?", a: "Chatify is a secure, privacy-focused messaging platform that allows users to chat, call, and share content with end-to-end protection." },
-    { q: "Is Chatify secure?", a: "Yes, Chatify uses advanced encryption to ensure that only you and the person you're communicating with can access your messages." },
-    { q: "Can Chatify read my messages?", a: "No. Chatify cannot read, access, or store your private messages or media." },
-    { q: "Is Chatify free to use?", a: "Yes, Chatify is free to use with all core features available to users." },
-    { q: "What makes Chatify different from other apps?", a: "Chatify prioritizes user privacy, offers a unique 'Cinema' feature for synced watching, and includes a secure 'Vault' for sensitive data." },
+    { q: "What is Nexora?", a: "Nexora is a secure, privacy-focused messaging platform that allows users to chat, call, and share content with end-to-end protection." },
+    { q: "Is Nexora secure?", a: "Yes, Nexora uses advanced encryption to ensure that only you and the person you're communicating with can access your messages." },
+    { q: "Can Nexora read my messages?", a: "No. Nexora cannot read, access, or store your private messages or media." },
+    { q: "Is Nexora free to use?", a: "Yes, Nexora is free to use with all core features available to users." },
+    { q: "What makes Nexora different from other apps?", a: "Nexora prioritizes user privacy, offers a unique 'Cinema' feature for synced watching, and includes a secure 'Vault' for sensitive data." },
     { q: "How do I create an account?", a: "You can sign up using your email address or via Google login for a faster experience." },
-    { q: "Can I use Chatify on multiple devices?", a: "Yes, Chatify is designed to be accessible across various devices while maintaining synchronization." },
+    { q: "Can I use Nexora on multiple devices?", a: "Yes, Nexora is designed to be accessible across various devices while maintaining synchronization." },
     { q: "What is the 'Cinema' feature?", a: "Cinema allows you to watch YouTube videos or uploaded content in real-time sync with your friends." },
     { q: "How do I add friends?", a: "You can search for users by their unique username and send them a friend request." },
     { q: "What is the 'Vault'?", a: "The Vault is a password-protected area within the app where you can store private notes and media." },
@@ -29,11 +29,11 @@ export const Help: React.FC = () => {
     { q: "Can I delete my account?", a: "Yes, you can permanently delete your account and all associated data from the settings menu." },
     { q: "What are 'Special Atithi' requests?", a: "These are requests for a verified status badge, typically for creators or community leaders." },
     { q: "How do I share my location?", a: "You can share your real-time or static location with friends through the chat attachment menu." },
-    { q: "Are voice and video calls encrypted?", a: "Yes, all calls made through Chatify are protected with end-to-end encryption." },
+    { q: "Are voice and video calls encrypted?", a: "Yes, all calls made through Nexora are protected with end-to-end encryption." },
     { q: "What happens if I forget my password?", a: "You can use the 'Forgot Password' link on the login page to receive a reset link via email." },
-    { q: "Can I send large files?", a: "Yes, Chatify supports sharing various file types, including high-quality images and videos." },
+    { q: "Can I send large files?", a: "Yes, Nexora supports sharing various file types, including high-quality images and videos." },
     { q: "How do I manage my notifications?", a: "Notification settings can be customized in your profile to control alerts for messages, calls, and requests." },
-    { q: "Is there a dark mode?", a: "Chatify features a sleek, modern dark interface by default to reduce eye strain and save battery." },
+    { q: "Is there a dark mode?", a: "Nexora features a sleek, modern dark interface by default to reduce eye strain and save battery." },
     { q: "How can I contact support?", a: "You can reach out to us through the Help Center form or by emailing chtifyapp@gmail.com." }
   ];
 
@@ -46,7 +46,7 @@ export const Help: React.FC = () => {
             <div className="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center shadow-[0_0_20px_rgba(79,70,229,0.3)] group-hover:scale-110 transition-transform">
               <Shield size={24} className="text-white" />
             </div>
-            <span className="text-2xl font-black tracking-tighter uppercase">Chatify</span>
+            <span className="text-2xl font-black tracking-tighter uppercase">Nexora</span>
           </Link>
           <div className="hidden md:flex items-center gap-8">
             <Link to="/features" className="text-sm font-bold uppercase tracking-widest text-zinc-400 hover:text-white transition-colors">Features</Link>
@@ -135,7 +135,7 @@ export const Help: React.FC = () => {
           <div className="col-span-2 md:col-span-1">
             <Link to="/" className="flex items-center gap-2 mb-6">
               <Shield size={24} className="text-indigo-500" />
-              <span className="text-xl font-black tracking-tighter uppercase">Chatify</span>
+              <span className="text-xl font-black tracking-tighter uppercase">Nexora</span>
             </Link>
             <p className="text-zinc-500 text-sm font-medium leading-relaxed">
               The ultimate secure communication platform for the modern era.
@@ -166,7 +166,7 @@ export const Help: React.FC = () => {
           </div>
         </div>
         <div className="max-w-7xl mx-auto mt-20 pt-8 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-4">
-          <p className="text-zinc-600 text-[10px] font-bold uppercase tracking-widest">© 2026 Chatify Inc. All rights reserved.</p>
+          <p className="text-zinc-600 text-[10px] font-bold uppercase tracking-widest">© 2026 Nexora Inc. All rights reserved.</p>
           <div className="flex gap-6">
             <span className="text-zinc-600 text-[10px] font-bold uppercase tracking-widest">v4.0.1 Stable</span>
             <span className="text-zinc-600 text-[10px] font-bold uppercase tracking-widest">System: Operational</span>

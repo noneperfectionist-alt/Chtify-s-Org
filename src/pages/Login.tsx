@@ -95,7 +95,7 @@ export const Login: React.FC = () => {
       >
         <div className="text-center mb-8">
           <h1 className="text-4xl font-bold text-foreground tracking-tight mb-2">
-            Chatify
+            Nexora
           </h1>
           <p className="text-muted-foreground">Welcome back! Please login to your account.</p>
         </div>
@@ -147,8 +147,8 @@ export const Login: React.FC = () => {
               </motion.p>
             )}
 
-            <Button type="submit" disabled={isLoading} className="w-full flex items-center justify-center gap-2">
-              {isLoading ? <Loader2 size={18} className="animate-spin" /> : <LogIn size={18} />}
+            <Button type="submit" isLoading={isLoading} className="w-full">
+              {!isLoading && <LogIn size={18} />}
               Login
             </Button>
           </form>

@@ -280,12 +280,12 @@ export const Profile: React.FC = () => {
             <GlassCard className="space-y-4">
               <h2 className="text-lg font-semibold text-foreground flex items-center gap-2">
                 <Info size={20} className="text-primary" />
-                About Chatify
+                About Nexora
               </h2>
               <div className="space-y-4">
                 <div className="p-4 bg-secondary/50 rounded-xl border border-border">
                   <p className="text-sm text-foreground leading-relaxed">
-                    Chatify is a privacy-first communication platform designed to protect user data and ensure secure interactions. We believe in minimal data collection and maximum user control.
+                    Nexora is a privacy-first communication platform designed to protect user data and ensure secure interactions. We believe in minimal data collection and maximum user control.
                   </p>
                 </div>
                 
@@ -316,7 +316,7 @@ export const Profile: React.FC = () => {
                 <div className="pt-4 border-t border-border">
                   <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-widest mb-2">About the Creator</h3>
                   <p className="text-xs text-muted-foreground italic">
-                    "I built Chatify to give people a secure space to connect without worrying about their data being sold or monitored. Your privacy is my priority."
+                    "I built Nexora to give people a secure space to connect without worrying about their data being sold or monitored. Your privacy is my priority."
                   </p>
                 </div>
               </div>

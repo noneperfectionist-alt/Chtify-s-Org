@@ -17,7 +17,7 @@ const navItems = [
 export const Header: React.FC = () => {
   const { theme, toggleTheme } = useTheme();
   const location = useLocation();
-  const pageTitle = navItems.find(item => item.path === location.pathname)?.label || "Chatify";
+  const pageTitle = navItems.find(item => item.path === location.pathname)?.label || "Nexora";
 
   return (
     <header className="fixed top-0 left-0 right-0 h-16 bg-background/80 backdrop-blur-xl border-b border-border z-[60] flex items-center justify-between px-4 md:px-8">
@@ -26,7 +26,7 @@ export const Header: React.FC = () => {
           <MessageSquare size={18} className="text-white" />
         </div>
         <h1 className="text-lg font-bold text-foreground tracking-tight md:hidden">{pageTitle}</h1>
-        <h1 className="text-xl font-bold text-foreground tracking-tight hidden md:block">Chatify</h1>
+        <h1 className="text-xl font-bold text-foreground tracking-tight hidden md:block">Nexora</h1>
       </div>
 
       <div className="flex items-center gap-2">
