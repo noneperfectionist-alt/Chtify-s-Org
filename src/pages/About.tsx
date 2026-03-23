@@ -14,7 +14,7 @@ export const About: React.FC = () => {
             <div className="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center shadow-[0_0_20px_rgba(79,70,229,0.3)] group-hover:scale-110 transition-transform">
               <Shield size={24} className="text-white" />
             </div>
-            <span className="text-2xl font-black tracking-tighter uppercase">Chatify</span>
+            <span className="text-2xl font-black tracking-tighter uppercase">Nexora</span>
           </Link>
           <div className="hidden md:flex items-center gap-8">
             <Link to="/features" className="text-sm font-bold uppercase tracking-widest text-zinc-400 hover:text-white transition-colors">Features</Link>
@@ -38,10 +38,10 @@ export const About: React.FC = () => {
                 Our <span className="text-indigo-500">Mission</span>
               </h1>
               <p className="text-zinc-400 text-lg font-medium mb-8 leading-relaxed">
-                At Chatify, we believe that privacy is a fundamental human right. Our mission is to provide a secure, transparent, and engaging platform where people can communicate freely without fear of surveillance or data exploitation.
+                At Nexora, we believe that privacy is a fundamental human right. Our mission is to provide a secure, transparent, and engaging platform where people can communicate freely without fear of surveillance or data exploitation.
               </p>
               <p className="text-zinc-400 text-lg font-medium mb-8 leading-relaxed">
-                Founded in 2024, Chatify was born out of a desire to create a communication tool that puts users first. We don't sell your data, we don't track your every move, and we certainly don't compromise on security. Our end-to-end encryption ensures that your conversations stay between you and your intended recipients.
+                Founded in 2024, Nexora was born out of a desire to create a communication tool that puts users first. We don't sell your data, we don't track your every move, and we certainly don't compromise on security. Our end-to-end encryption ensures that your conversations stay between you and your intended recipients.
               </p>
               <div className="flex flex-wrap gap-4 mt-12">
                 <Link to="/privacy">
@@ -81,7 +81,7 @@ export const About: React.FC = () => {
               <div className="max-w-2xl relative z-10">
                 <h2 className="text-4xl font-black uppercase tracking-tighter mb-6">Donate for <span className="text-indigo-500">Us</span></h2>
                 <p className="text-zinc-400 text-lg font-medium mb-8 leading-relaxed">
-                  Chatify is a non-profit initiative driven by the community. Your contributions help us maintain our servers, develop new features, and keep the platform free and secure for everyone.
+                  Nexora is a non-profit initiative driven by the community. Your contributions help us maintain our servers, develop new features, and keep the platform free and secure for everyone.
                 </p>
                 <div className="space-y-4 mb-8">
                   <div className="flex items-center gap-4 p-4 bg-white/5 rounded-2xl border border-white/10">
@@ -95,7 +95,7 @@ export const About: React.FC = () => {
                   </div>
                 </div>
                 <Button className="px-12 py-4 rounded-2xl font-black uppercase tracking-widest text-sm h-auto">
-                  Support Chatify
+                  Support Nexora
                 </Button>
               </div>
             </GlassCard>
@@ -153,7 +153,7 @@ export const About: React.FC = () => {
           <div className="col-span-2 md:col-span-1">
             <Link to="/" className="flex items-center gap-2 mb-6">
               <Shield size={24} className="text-indigo-500" />
-              <span className="text-xl font-black tracking-tighter uppercase">Chatify</span>
+              <span className="text-xl font-black tracking-tighter uppercase">Nexora</span>
             </Link>
             <p className="text-zinc-500 text-sm font-medium leading-relaxed">
               The ultimate secure communication platform for the modern era.
@@ -184,7 +184,7 @@ export const About: React.FC = () => {
           </div>
         </div>
         <div className="max-w-7xl mx-auto mt-20 pt-8 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-4">
-          <p className="text-zinc-600 text-[10px] font-bold uppercase tracking-widest">© 2026 Chatify Inc. All rights reserved.</p>
+          <p className="text-zinc-600 text-[10px] font-bold uppercase tracking-widest">© 2026 Nexora Inc. All rights reserved.</p>
           <div className="flex gap-6">
             <span className="text-zinc-600 text-[10px] font-bold uppercase tracking-widest">v4.0.1 Stable</span>
             <span className="text-zinc-600 text-[10px] font-bold uppercase tracking-widest">System: Operational</span>

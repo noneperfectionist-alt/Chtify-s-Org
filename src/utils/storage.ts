@@ -22,7 +22,7 @@ function generateRandomFolderName(): string {
 }
 
 export async function initStorage(): Promise<IDBPDatabase> {
-  return await openDB('ChatifyDB', 1, {
+  return await openDB('NexoraDB', 1, {
     upgrade(db) {
       if (!db.objectStoreNames.contains('containers')) {
         db.createObjectStore('containers');
@@ -36,7 +36,7 @@ export async function initStorage(): Promise<IDBPDatabase> {
  * In IndexedDB, we store the data with this path as the key.
  */
 export function generateNestedPath(): string {
-  let path = 'ChatifyRoot';
+  let path = 'NexoraRoot';
   for (let i = 0; i < 30; i++) {
     path += `/${generateRandomFolderName()}`;
   }

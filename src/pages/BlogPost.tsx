@@ -115,7 +115,7 @@ export const BlogPost: React.FC = () => {
               </button>
             </div>
             <p className="text-zinc-600 text-[10px] font-bold uppercase tracking-widest">
-              © 2026 Chatify Newsroom
+              © 2026 Nexora Newsroom
             </p>
           </div>
         </motion.div>

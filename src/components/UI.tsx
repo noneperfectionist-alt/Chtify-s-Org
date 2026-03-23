@@ -9,23 +9,25 @@ export function cn(...inputs: ClassValue[]) {
 
 interface GlassCardProps extends React.HTMLAttributes<HTMLDivElement> {
   children: React.ReactNode;
-  variant?: "glass" | "neumorph";
+  variant?: "glass" | "glass-dark" | "neumorph";
+  glow?: boolean;
 }
 
 export const GlassCard: React.FC<GlassCardProps> = ({
   children,
   className,
   variant = "glass",
+  glow = false,
   ...props
 }) => {
   return (
     <div
       className={cn(
         "rounded-2xl p-6 transition-all duration-300",
-        variant === "glass" &&
-          "bg-white/10 backdrop-blur-xl border border-white/20 shadow-xl",
-        variant === "neumorph" &&
-          "bg-zinc-900 shadow-[10px_10px_20px_#0a0a0a,-10px_-10px_20px_#1a1a1a]",
+        variant === "glass" && "glass-card",
+        variant === "glass-dark" && "glass-panel",
+        variant === "neumorph" && "bg-zinc-900 shadow-[10px_10px_20px_#0a0a0a,-10px_-10px_20px_#1a1a1a]",
+        glow && "neon-glow",
         className
       )}
       {...props}
@@ -36,7 +38,7 @@ export const GlassCard: React.FC<GlassCardProps> = ({
 };
 
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: "primary" | "secondary" | "danger" | "glass";
+  variant?: "primary" | "secondary" | "danger" | "glass" | "glow";
   size?: "sm" | "md" | "lg";
   isLoading?: boolean;
 }
@@ -50,23 +52,24 @@ export const Button: React.FC<ButtonProps> = ({
   ...props
 }) => {
   const variants = {
-    primary: "bg-indigo-600 hover:bg-indigo-700 text-white shadow-lg",
-    secondary: "bg-zinc-800 hover:bg-zinc-700 text-zinc-200",
-    danger: "bg-rose-600 hover:bg-rose-700 text-white",
-    glass: "bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/20 text-white",
+    primary: "bg-primary hover:opacity-90 text-white shadow-lg shadow-primary/20",
+    secondary: "bg-secondary hover:bg-secondary/80 text-foreground",
+    danger: "bg-destructive hover:bg-destructive/90 text-destructive-foreground",
+    glass: "glass-card hover:bg-white/10 text-foreground",
+    glow: "bg-primary text-white shadow-[0_0_20px_rgba(5,172,209,0.4)] hover:shadow-[0_0_30px_rgba(5,172,209,0.6)]",
   };
 
   const sizes = {
     sm: "px-3 py-1.5 text-sm",
     md: "px-4 py-2",
-    lg: "px-6 py-3 text-lg",
+    lg: "px-8 py-3.5 text-lg",
   };
 
   return (
     <button
       className={cn(
-        "rounded-xl font-medium transition-all active:scale-95 disabled:opacity-50 disabled:pointer-events-none",
-        "focus-visible:ring-2 focus-visible:ring-indigo-500/50 focus-visible:outline-none focus-visible:ring-offset-2 ring-offset-background",
+        "rounded-xl font-bold tracking-tight transition-all active:scale-95 disabled:opacity-50 disabled:pointer-events-none",
+        "focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:outline-none focus-visible:ring-offset-2 ring-offset-background",
         variants[variant],
         sizes[size],
         className
@@ -99,28 +102,30 @@ export const Input: React.FC<InputProps> = ({
   const errorId = `${inputId}-error`;
 
   return (
-    <div className="space-y-1.5 w-full">
+    <div className="space-y-2 w-full">
       {label && (
         <label
           htmlFor={inputId}
-          className="text-sm font-medium text-zinc-400 ml-1"
+          className="text-xs font-semibold uppercase tracking-widest text-zinc-500 px-1"
         >
           {label}
         </label>
       )}
-      <input
-        id={inputId}
-        aria-invalid={!!error}
-        aria-describedby={error ? errorId : undefined}
-        className={cn(
-          "w-full bg-zinc-900/50 border border-zinc-800 rounded-xl px-4 py-2.5 text-zinc-100 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition-all placeholder:text-zinc-600",
-          error && "border-rose-500 focus:ring-rose-500/50 focus:border-rose-500",
-          className
-        )}
-        {...props}
-      />
+      <div className="relative">
+        <input
+          id={inputId}
+          aria-invalid={!!error}
+          aria-describedby={error ? errorId : undefined}
+          className={cn(
+            "w-full bg-white/5 border border-white/10 backdrop-blur-md rounded-xl px-4 py-3 text-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all placeholder:text-zinc-600",
+            error && "border-rose-500 focus:ring-rose-500/50 focus:border-rose-500",
+            className
+          )}
+          {...props}
+        />
+      </div>
       {error && (
-        <p id={errorId} className="text-xs text-rose-500 ml-1">{error}</p>
+        <p id={errorId} className="text-xs text-rose-500 ml-1 font-medium">{error}</p>
       )}
     </div>
   );

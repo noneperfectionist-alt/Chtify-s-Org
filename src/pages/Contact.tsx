@@ -48,7 +48,7 @@ export const Contact: React.FC = () => {
             <div className="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center shadow-[0_0_20px_rgba(79,70,229,0.3)] group-hover:scale-110 transition-transform">
               <Shield size={24} className="text-white" />
             </div>
-            <span className="text-2xl font-black tracking-tighter uppercase">Chatify</span>
+            <span className="text-2xl font-black tracking-tighter uppercase">Nexora</span>
           </Link>
           <div className="hidden md:flex items-center gap-8">
             <Link to="/features" className="text-sm font-bold uppercase tracking-widest text-zinc-400 hover:text-white transition-colors">Features</Link>
@@ -72,7 +72,7 @@ export const Contact: React.FC = () => {
                 Get in <span className="text-indigo-500">Touch</span>
               </h1>
               <p className="text-zinc-400 text-lg font-medium mb-12 leading-relaxed">
-                Have questions about Chatify? Our team is here to help you with any inquiries regarding security, features, or partnership opportunities.
+                Have questions about Nexora? Our team is here to help you with any inquiries regarding security, features, or partnership opportunities.
               </p>
 
               <div className="space-y-8">
@@ -92,7 +92,7 @@ export const Contact: React.FC = () => {
                   </div>
                   <div>
                     <p className="text-[10px] text-zinc-500 font-black uppercase tracking-[0.2em] mb-1">Team Name</p>
-                    <p className="text-lg font-bold">Chatify Builders</p>
+                    <p className="text-lg font-bold">Nexora Builders</p>
                   </div>
                 </div>
 
@@ -205,7 +205,7 @@ export const Contact: React.FC = () => {
           <div className="col-span-2 md:col-span-1">
             <Link to="/" className="flex items-center gap-2 mb-6">
               <Shield size={24} className="text-indigo-500" />
-              <span className="text-xl font-black tracking-tighter uppercase">Chatify</span>
+              <span className="text-xl font-black tracking-tighter uppercase">Nexora</span>
             </Link>
             <p className="text-zinc-500 text-sm font-medium leading-relaxed">
               The ultimate secure communication platform for the modern era.
@@ -236,7 +236,7 @@ export const Contact: React.FC = () => {
           </div>
         </div>
         <div className="max-w-7xl mx-auto mt-20 pt-8 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-4">
-          <p className="text-zinc-600 text-[10px] font-bold uppercase tracking-widest">© 2026 Chatify Inc. All rights reserved.</p>
+          <p className="text-zinc-600 text-[10px] font-bold uppercase tracking-widest">© 2026 Nexora Inc. All rights reserved.</p>
           <div className="flex gap-6">
             <span className="text-zinc-600 text-[10px] font-bold uppercase tracking-widest">v4.0.1 Stable</span>
             <span className="text-zinc-600 text-[10px] font-bold uppercase tracking-widest">System: Operational</span>

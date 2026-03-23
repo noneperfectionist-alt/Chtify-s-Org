@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { GlassCard, Button, Input } from "../components/UI";
-import { LogIn, Loader2, Eye, EyeOff, ShieldCheck } from "lucide-react";
+import { LogIn, Loader2, Eye, EyeOff, ShieldCheck, Mail, Lock, Rocket, ArrowRight } from "lucide-react";
 import { motion } from "motion/react";
 import { auth, db } from "../firebase";
 import { signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider } from "firebase/auth";
@@ -57,7 +57,6 @@ export const Login: React.FC = () => {
       if (userDoc.exists()) {
         username = userDoc.data().username;
       } else {
-        // Create a new profile for Google users if it doesn't exist
         username = user.displayName?.split(" ")[0].toLowerCase() + Math.floor(Math.random() * 1000);
         await setDoc(userDocRef, {
           uid: user.uid,
@@ -82,108 +81,112 @@ export const Login: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background p-4 relative overflow-hidden">
-      {/* Background blobs */}
-      <div className="absolute top-0 left-0 w-96 h-96 bg-primary/20 rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2" />
-      <div className="absolute bottom-0 right-0 w-96 h-96 bg-rose-600/20 rounded-full blur-3xl translate-x-1/2 translate-y-1/2" />
+    <div className="min-h-screen flex items-center justify-center bg-background p-6 cosmic-bg relative overflow-hidden">
+      {/* Background Decoration */}
+      <div className="fixed inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-[-10%] right-[-5%] w-[500px] h-[500px] bg-primary/10 rounded-full blur-[120px]"></div>
+        <div className="absolute bottom-[-10%] left-[-5%] w-[400px] h-[400px] bg-primary/5 rounded-full blur-[100px]"></div>
+      </div>
 
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        className="w-full max-w-md z-10"
+        className="w-full max-w-[440px] z-10"
       >
-        <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-foreground tracking-tight mb-2">
-            Chatify
-          </h1>
-          <p className="text-muted-foreground">Welcome back! Please login to your account.</p>
-        </div>
+        <GlassCard className="p-10 flex flex-col gap-8 shadow-2xl rounded-[2rem]">
+          <div className="flex flex-col items-center gap-2">
+            <div className="size-16 bg-primary/10 rounded-2xl flex items-center justify-center text-primary mb-4">
+              <Rocket size={40} />
+            </div>
+            <h1 className="text-3xl font-bold tracking-tight text-white">Welcome back</h1>
+            <p className="text-muted-foreground text-center font-medium">Continue your journey across the cosmos.</p>
+          </div>
 
-        <GlassCard className="space-y-6">
-          <form onSubmit={handleLogin} className="space-y-4">
-            <Input
-              label="Email Address"
-              type="email"
-              placeholder="name@example.com"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-            />
-            <div className="relative">
+          <form onSubmit={handleLogin} className="flex flex-col gap-6">
+            <div className="flex flex-col gap-2">
               <Input
-                label="Password"
-                type={showPassword ? "text" : "password"}
-                placeholder="••••••••"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                label="Cosmic ID"
+                type="email"
+                placeholder="explorer@nexora.space"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
                 required
+                className="pl-12"
               />
-              <button
-                type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-[38px] text-zinc-500 hover:text-zinc-300 transition-colors"
-              >
-                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-              </button>
+              <Mail className="absolute left-4 top-[44px] text-zinc-500" size={20} />
             </div>
-            
-            <div className="flex justify-end">
-              <Link 
-                to="/forgot-password" 
-                className="text-xs text-primary hover:text-primary/80 font-medium transition-colors"
-              >
-                Forgot Password?
-              </Link>
+
+            <div className="flex flex-col gap-2 relative">
+              <div className="flex justify-between items-center px-1">
+                <label className="text-xs font-semibold uppercase tracking-widest text-zinc-500">Security Key</label>
+                <Link to="/forgot-password" className="text-xs font-medium text-primary hover:text-primary/80 transition-colors">Forgot?</Link>
+              </div>
+              <div className="relative">
+                <Input
+                  type={showPassword ? "text" : "password"}
+                  placeholder="••••••••"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                  className="pl-12"
+                />
+                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-500" size={20} />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-zinc-500 hover:text-zinc-300 transition-colors"
+                >
+                  {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                </button>
+              </div>
             </div>
-            
+
             {error && (
               <motion.p
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="text-xs text-rose-500 font-medium ml-1"
+                className="text-xs text-rose-500 font-bold uppercase tracking-widest text-center"
               >
                 {error}
               </motion.p>
             )}
 
-            <Button type="submit" disabled={isLoading} className="w-full flex items-center justify-center gap-2">
-              {isLoading ? <Loader2 size={18} className="animate-spin" /> : <LogIn size={18} />}
-              Login
+            <Button type="submit" disabled={isLoading} variant="glow" size="lg" className="w-full group">
+              {isLoading ? (
+                <Loader2 size={24} className="animate-spin" />
+              ) : (
+                <div className="flex items-center justify-center gap-2">
+                  <span>Initiate Login</span>
+                  <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
+                </div>
+              )}
             </Button>
           </form>
 
-          <div className="relative">
-            <div className="absolute inset-0 flex items-center">
-              <span className="w-full border-t border-border" />
-            </div>
-            <div className="relative flex justify-center text-xs uppercase">
-              <span className="bg-background px-2 text-muted-foreground">Or continue with</span>
-            </div>
+          <div className="relative flex items-center py-2">
+            <div className="flex-grow border-t border-white/5"></div>
+            <span className="flex-shrink mx-4 text-xs font-bold uppercase tracking-widest text-zinc-600">or</span>
+            <div className="flex-grow border-t border-white/5"></div>
           </div>
 
-          <Button variant="secondary" onClick={handleGoogleLogin} className="w-full">
-            Google
-          </Button>
-
-          <div className="space-y-4">
-            <p className="text-center text-sm text-muted-foreground">
-              Don't have an account?{" "}
-              <Link to="/signup" className="text-primary hover:text-primary/80 font-medium">
-                Sign up
-              </Link>
-            </p>
-
-            <div className="pt-4 border-t border-border">
-              <Link 
-                to="/policies" 
-                className="flex items-center justify-center gap-2 text-[10px] text-muted-foreground hover:text-primary transition-colors uppercase tracking-widest font-bold"
-              >
-                <ShieldCheck size={12} />
-                Privacy Policy & Terms
-              </Link>
-            </div>
+          <div className="grid grid-cols-2 gap-4">
+            <Button variant="glass" onClick={handleGoogleLogin} className="h-12 text-sm font-medium">
+              <img className="w-4 h-4 mr-2" alt="Google logo" src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" />
+              Google
+            </Button>
+            <Button variant="glass" className="h-12 text-sm font-medium">
+              <ShieldCheck className="w-4 h-4 mr-2" />
+              Apple
+            </Button>
           </div>
+
+          <p className="text-center text-sm text-muted-foreground mt-2">
+            New to the universe?{" "}
+            <Link to="/signup" className="text-primary font-semibold hover:underline underline-offset-4 decoration-primary/30">
+              Create an account
+            </Link>
+          </p>
         </GlassCard>
       </motion.div>
     </div>

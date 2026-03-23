@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { GlassCard, Button, Input } from "../components/UI";
-import { UserPlus, Check, X, Loader2, Eye, EyeOff, ShieldCheck } from "lucide-react";
+import { UserPlus, Check, X, Loader2, Eye, EyeOff, ShieldCheck, Mail, Lock, User, ArrowRight, Rocket } from "lucide-react";
 import { motion } from "motion/react";
 import { auth, db } from "../firebase";
 import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
-import { doc, setDoc, collection, query, where, getDocs } from "firebase/firestore";
+import { doc, setDoc } from "firebase/firestore";
 
 export const SignUp: React.FC = () => {
   const [email, setEmail] = useState("");
@@ -28,12 +28,8 @@ export const SignUp: React.FC = () => {
 
     const checkUsername = async () => {
       setIsCheckingUsername(true);
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 5000);
-
       try {
-        const response = await fetch(`/api/check-username/${encodeURIComponent(username)}`, { signal: controller.signal });
-        clearTimeout(timeoutId);
+        const response = await fetch(`/api/check-username/${encodeURIComponent(username)}`);
         if (!response.ok) throw new Error("Failed to check username");
         const data = await response.json();
         setUsernameStatus(data.available ? "available" : "taken");
@@ -61,16 +57,13 @@ export const SignUp: React.FC = () => {
     setIsLoading(true);
     setError(null);
     try {
-      // 1. Create User in Firebase Auth
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
 
       await updateProfile(user, { displayName: username });
 
-      // 2. Generate OTP
       const otp = Math.floor(100000 + Math.random() * 900000).toString();
 
-      // 3. Store User in Firestore
       await setDoc(doc(db, "users", user.uid), {
         uid: user.uid,
         username,
@@ -84,21 +77,12 @@ export const SignUp: React.FC = () => {
         createdAt: new Date().toISOString()
       });
 
-      // 4. Send Verification Email (OTP)
       try {
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 10000); // 10s timeout for email
-
-        const response = await fetch("/api/send-verification", {
+        await fetch("/api/send-verification", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ email, code: otp }),
-          signal: controller.signal
         });
-        clearTimeout(timeoutId);
-        if (!response.ok) {
-          console.warn("Verification email failed to send, but continuing signup.");
-        }
       } catch (e) {
         console.error("Email API error:", e);
       }
@@ -117,122 +101,119 @@ export const SignUp: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background p-4 relative overflow-hidden">
-      {/* Background blobs */}
-      <div className="absolute top-0 left-0 w-96 h-96 bg-primary/20 rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2" />
-      <div className="absolute bottom-0 right-0 w-96 h-96 bg-rose-600/20 rounded-full blur-3xl translate-x-1/2 translate-y-1/2" />
+    <div className="min-h-screen flex items-center justify-center bg-background p-6 cosmic-bg relative overflow-hidden">
+      {/* Background Decoration */}
+      <div className="fixed inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-[-10%] right-[-5%] w-[500px] h-[500px] bg-primary/10 rounded-full blur-[120px]"></div>
+        <div className="absolute bottom-[-10%] left-[-5%] w-[400px] h-[400px] bg-primary/5 rounded-full blur-[100px]"></div>
+      </div>
 
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        className="w-full max-w-md z-10"
+        className="w-full max-w-[480px] z-10"
       >
-        <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-foreground tracking-tight mb-2">
-            Chatify
-          </h1>
-          <p className="text-muted-foreground">Join the next-generation social platform.</p>
-        </div>
+        <GlassCard className="p-10 flex flex-col gap-6 shadow-2xl rounded-[2.5rem]">
+          <div className="flex flex-col items-center gap-2">
+            <div className="size-16 bg-primary/10 rounded-2xl flex items-center justify-center text-primary mb-4">
+              <Rocket size={40} />
+            </div>
+            <h1 className="text-3xl font-bold tracking-tight text-white text-center leading-tight">Create your account</h1>
+            <p className="text-muted-foreground text-center font-medium">Join the next-generation communication platform.</p>
+          </div>
 
-        <GlassCard className="space-y-6">
-          <div className="flex p-1 bg-secondary rounded-xl border border-border">
+          <div className="flex p-1 bg-white/5 rounded-xl border border-white/10 mt-4">
             <button
               onClick={() => setUserType("normal")}
-              className={`flex-1 py-2 text-sm font-medium rounded-lg transition-all ${
+              className={`flex-1 py-2 text-xs font-bold uppercase tracking-widest rounded-lg transition-all ${
                 userType === "normal"
-                  ? "bg-primary text-white shadow-lg"
-                  : "text-muted-foreground hover:text-foreground"
+                  ? "bg-primary text-white shadow-lg shadow-primary/20"
+                  : "text-zinc-500 hover:text-zinc-300"
               }`}
             >
-              Normal User
+              Explorer
             </button>
             <button
               onClick={() => setUserType("special_atithi")}
-              className={`flex-1 py-2 text-sm font-medium rounded-lg transition-all ${
+              className={`flex-1 py-2 text-xs font-bold uppercase tracking-widest rounded-lg transition-all ${
                 userType === "special_atithi"
-                  ? "bg-primary text-white shadow-lg"
-                  : "text-muted-foreground hover:text-foreground"
+                  ? "bg-primary text-white shadow-lg shadow-primary/20"
+                  : "text-zinc-500 hover:text-zinc-300"
               }`}
             >
-              Special Atithi
+              Atithi
             </button>
           </div>
 
-          <form onSubmit={handleSignUp} className="space-y-4">
-            <div className="relative">
+          <form onSubmit={handleSignUp} className="flex flex-col gap-5 mt-2">
+            <div className="flex flex-col gap-2 relative">
               <Input
-                label="Username"
+                label="Cosmic ID (Username)"
                 type="text"
                 placeholder="unique_username"
                 value={username}
                 onChange={(e) => setUsername(e.target.value.toLowerCase())}
                 required
-                className="pr-10"
+                className="pl-12"
               />
-              <div className="absolute right-3 top-[38px]">
+              <User className="absolute left-4 top-[44px] text-zinc-500" size={20} />
+              <div className="absolute right-4 top-[44px]">
                 {isCheckingUsername ? (
-                  <Loader2 size={16} className="animate-spin text-muted-foreground" />
+                  <Loader2 size={18} className="animate-spin text-zinc-500" />
                 ) : usernameStatus === "available" ? (
-                  <Check size={16} className="text-emerald-500" />
+                  <Check size={18} className="text-emerald-500" />
                 ) : usernameStatus === "taken" ? (
-                  <X size={16} className="text-rose-500" />
+                  <X size={18} className="text-rose-500" />
                 ) : null}
               </div>
-              {usernameStatus === "taken" && (
-                <p className="text-xs text-rose-500 mt-1 ml-1">Username is already taken.</p>
-              )}
             </div>
 
-            <Input
-              label="Email Address"
-              type="email"
-              placeholder="name@example.com"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-            />
-            <div className="relative">
+            <div className="flex flex-col gap-2 relative">
               <Input
-                label="Password"
-                type={showPassword ? "text" : "password"}
-                placeholder="••••••••"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                label="Orbital Email"
+                type="email"
+                placeholder="name@nexora.space"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
                 required
+                className="pl-12"
               />
-              <button
-                type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-[38px] text-zinc-500 hover:text-zinc-300 transition-colors"
-              >
-                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-              </button>
+              <Mail className="absolute left-4 top-[44px] text-zinc-500" size={20} />
             </div>
 
-            <div className="relative">
-              <Input
-                label="Confirm Password"
-                type={showPassword ? "text" : "password"}
-                placeholder="••••••••"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                required
-              />
-              <button
-                type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-[38px] text-zinc-500 hover:text-zinc-300 transition-colors"
-              >
-                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-              </button>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="flex flex-col gap-2 relative">
+                <Input
+                  label="Key"
+                  type={showPassword ? "text" : "password"}
+                  placeholder="••••••••"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                  className="pl-12"
+                />
+                <Lock className="absolute left-4 top-[44px] text-zinc-500" size={18} />
+              </div>
+              <div className="flex flex-col gap-2 relative">
+                <Input
+                  label="Verify"
+                  type={showPassword ? "text" : "password"}
+                  placeholder="••••••••"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  required
+                  className="pl-12"
+                />
+                <ShieldCheck className="absolute left-4 top-[44px] text-zinc-500" size={18} />
+              </div>
             </div>
 
             {error && (
               <motion.p
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="text-xs text-rose-500 font-medium ml-1"
+                className="text-xs text-rose-500 font-bold uppercase tracking-widest text-center"
               >
                 {error}
               </motion.p>
@@ -241,32 +222,36 @@ export const SignUp: React.FC = () => {
             <Button
               type="submit"
               disabled={usernameStatus !== "available" || isLoading}
-              className="w-full flex items-center justify-center gap-2 mt-2"
+              variant="glow"
+              size="lg"
+              className="w-full group mt-2"
             >
               {isLoading ? (
-                <Loader2 size={18} className="animate-spin" />
+                <Loader2 size={24} className="animate-spin" />
               ) : (
-                <UserPlus size={18} />
+                <div className="flex items-center justify-center gap-2">
+                  <span>{userType === "special_atithi" ? "Request Approval" : "Initiate Account"}</span>
+                  <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
+                </div>
               )}
-              {userType === "special_atithi" ? "Request Approval" : "Sign Up"}
             </Button>
           </form>
 
-          <div className="space-y-4">
+          <div className="flex flex-col gap-4">
             <p className="text-center text-sm text-muted-foreground">
               Already have an account?{" "}
-              <Link to="/login" className="text-primary hover:text-primary/80 font-medium">
+              <Link to="/login" className="text-primary font-semibold hover:underline underline-offset-4 decoration-primary/30">
                 Login
               </Link>
             </p>
 
-            <div className="pt-4 border-t border-border">
+            <div className="pt-4 border-t border-white/5">
               <Link 
                 to="/policies" 
-                className="flex items-center justify-center gap-2 text-[10px] text-muted-foreground hover:text-primary transition-colors uppercase tracking-widest font-bold"
+                className="flex items-center justify-center gap-2 text-[10px] text-zinc-600 hover:text-primary transition-colors uppercase tracking-[0.2em] font-bold"
               >
                 <ShieldCheck size={12} />
-                Privacy Policy & Terms
+                Governance & Privacy
               </Link>
             </div>
           </div>
