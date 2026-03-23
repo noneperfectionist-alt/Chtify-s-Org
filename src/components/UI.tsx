@@ -1,6 +1,7 @@
-import React from "react";
+import React, { useId } from "react";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
+import { Loader2 } from "lucide-react";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -37,6 +38,7 @@ export const GlassCard: React.FC<GlassCardProps> = ({
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: "primary" | "secondary" | "danger" | "glass";
   size?: "sm" | "md" | "lg";
+  isLoading?: boolean;
 }
 
 export const Button: React.FC<ButtonProps> = ({
@@ -44,6 +46,7 @@ export const Button: React.FC<ButtonProps> = ({
   className,
   variant = "primary",
   size = "md",
+  isLoading = false,
   ...props
 }) => {
   const variants = {
@@ -63,13 +66,18 @@ export const Button: React.FC<ButtonProps> = ({
     <button
       className={cn(
         "rounded-xl font-medium transition-all active:scale-95 disabled:opacity-50 disabled:pointer-events-none",
+        "focus-visible:ring-2 focus-visible:ring-indigo-500/50 focus-visible:outline-none focus-visible:ring-offset-2 ring-offset-background",
         variants[variant],
         sizes[size],
         className
       )}
+      disabled={props.disabled || isLoading}
       {...props}
     >
-      {children}
+      <div className="flex items-center justify-center gap-2">
+        {isLoading && <Loader2 size={18} className="animate-spin" />}
+        {children}
+      </div>
     </button>
   );
 };
@@ -83,16 +91,27 @@ export const Input: React.FC<InputProps> = ({
   label,
   error,
   className,
+  id,
   ...props
 }) => {
+  const generatedId = useId();
+  const inputId = id || generatedId;
+  const errorId = `${inputId}-error`;
+
   return (
     <div className="space-y-1.5 w-full">
       {label && (
-        <label className="text-sm font-medium text-zinc-400 ml-1">
+        <label
+          htmlFor={inputId}
+          className="text-sm font-medium text-zinc-400 ml-1"
+        >
           {label}
         </label>
       )}
       <input
+        id={inputId}
+        aria-invalid={!!error}
+        aria-describedby={error ? errorId : undefined}
         className={cn(
           "w-full bg-zinc-900/50 border border-zinc-800 rounded-xl px-4 py-2.5 text-zinc-100 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition-all placeholder:text-zinc-600",
           error && "border-rose-500 focus:ring-rose-500/50 focus:border-rose-500",
@@ -101,7 +120,7 @@ export const Input: React.FC<InputProps> = ({
         {...props}
       />
       {error && (
-        <p className="text-xs text-rose-500 ml-1">{error}</p>
+        <p id={errorId} className="text-xs text-rose-500 ml-1">{error}</p>
       )}
     </div>
   );
